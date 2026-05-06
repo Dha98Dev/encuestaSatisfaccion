@@ -1,0 +1,523 @@
+@if (authService.isAdmin()) {
+<section class="min-h-screen p-4 sm:p-6 lg:p-8 bg-slate-50">
+  <div class="mx-auto max-w-7xl space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">
+        Dashboard General de Encuestas
+      </h1>
+      <p class="text-slate-600">
+        Estadísticas globales de departamentos, trámites y respuestas críticas
+      </p>
+    </div>
+
+    @if (estadisticasGeneral) {
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+      <div class="rounded-3xl bg-white border border-slate-200 shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Personas encuestadas</p>
+        <h2 class="mt-3 text-4xl font-bold text-slate-900">
+          {{ estadisticasGeneral.resumen.total_personas_encuestadas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">Encuestas únicas</p>
+      </div>
+
+      <div class="rounded-3xl bg-white border border-slate-200 shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Total respuestas</p>
+        <h2 class="mt-3 text-4xl font-bold text-indigo-700">
+          {{ estadisticasGeneral.resumen.total_respuestas_registradas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">Respuestas registradas</p>
+      </div>
+
+      <div class="rounded-3xl bg-white border border-slate-200 shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Departamentos evaluados</p>
+        <h2 class="mt-3 text-4xl font-bold text-emerald-600">
+          {{ estadisticasGeneral.resumen.total_departamentos_evaluados }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">Con actividad</p>
+      </div>
+
+      <div class="rounded-3xl bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-white/80">Respuestas negativas</p>
+        <h2 class="mt-3 text-4xl font-bold">
+          {{ estadisticasGeneral.resumen.porcentaje_respuestas_negativas }}%
+        </h2>
+        <p class="mt-2 text-sm text-white/80">
+          {{ estadisticasGeneral.resumen.total_respuestas_negativas }} respuestas
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Distribución respuestas -->
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+      <h3 class="text-lg font-bold text-slate-800">
+        Distribución general de respuestas
+      </h3>
+      <p class="text-sm text-slate-500 mt-1">
+        Porcentaje global por tipo de respuesta
+      </p>
+
+      <div class="mt-6 space-y-4">
+        @for (item of estadisticasGeneral.distribucion_respuestas; track item.respuesta_id) {
+        <div>
+          <div class="flex items-center justify-between gap-3">
+            <p class="text-sm font-semibold text-slate-700">
+              {{ item.respuesta }}
+            </p>
+
+            <div class="flex items-center gap-2">
+              <span class="rounded-full px-2 py-1 text-xs font-semibold" [ngClass]="getBadgeClase(item.porcentaje)">
+                {{ item.porcentaje < 40 ? 'Bajo' : item.porcentaje < 70 ? 'Medio' : 'Alto' }} </span>
+
+                  <span class="text-sm font-bold text-slate-900">
+                    {{ item.porcentaje }}%
+                  </span>
+            </div>
+          </div>
+
+          <div class="mt-2 h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-700" [ngClass]="getColorClase(item.porcentaje)"
+              [style.width.%]="item.porcentaje">
+            </div>
+          </div>
+
+          <p class="mt-1 text-xs text-slate-500">
+            {{ item.total }} respuestas
+          </p>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Departamentos críticos + Trámites críticos -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+      <!-- Departamentos críticos -->
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+        <h3 class="text-lg font-bold text-slate-800">
+          Departamentos con más respuestas negativas
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">
+          Ranking por porcentaje de respuestas negativas
+        </p>
+
+        <div class="mt-5 space-y-4">
+          @for (depto of estadisticasGeneral.departamentos_criticos; track depto.departamento_id; let i = $index) {
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold text-slate-400">
+                  #{{ i + 1 }}
+                </p>
+                <h4 class="mt-1 font-bold text-slate-900">
+                  {{ depto.departamento }}
+                </h4>
+                <p class="mt-1 text-sm text-slate-500">
+                  {{ depto.total_personas }} personas · {{ depto.total_respuestas }} respuestas
+                </p>
+              </div>
+
+              <div class="text-right">
+                <p class="text-2xl font-bold text-red-600">
+                  {{ depto.porcentaje_negativas }}%
+                </p>
+                <p class="text-xs text-slate-500">
+                  {{ depto.total_negativas }} negativas
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-3 h-2.5 w-full rounded-full bg-slate-200 overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-red-400 to-red-600"
+                [style.width.%]="depto.porcentaje_negativas">
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Trámites críticos -->
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+        <h3 class="text-lg font-bold text-slate-800">
+          Trámites críticos
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">
+          Departamento + trámite con mayor concentración negativa
+        </p>
+
+        <div class="mt-5 space-y-4">
+          @for (tramite of estadisticasGeneral.tramites_criticos; track tramite.tramite_id; let i = $index) {
+          <div class="rounded-2xl border border-red-100 bg-red-50 p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold text-red-400">
+                  #{{ i + 1 }} · {{ tramite.departamento }}
+                </p>
+                <h4 class="mt-1 font-bold text-slate-900">
+                  {{ tramite.tramite }}
+                </h4>
+                <p class="mt-1 text-sm text-slate-500">
+                  {{ tramite.total_personas }} personas · {{ tramite.total_respuestas }} respuestas
+                </p>
+              </div>
+
+              <div class="text-right">
+                <p class="text-2xl font-bold text-red-600">
+                  {{ tramite.porcentaje_negativas }}%
+                </p>
+                <p class="text-xs text-red-500">
+                  {{ tramite.total_negativas }} negativas
+                </p>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Preguntas críticas -->
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">
+        Preguntas críticas generales
+      </h3>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-slate-500">
+              <th class="py-3 pr-4">Pregunta</th>
+              <th class="py-3 pr-4">Departamento</th>
+              <th class="py-3 pr-4">Trámite</th>
+              <th class="py-3 pr-4">Negativas</th>
+              <th class="py-3">Estado</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of estadisticasGeneral.preguntas_criticas; track item.pregunta + item.departamento +
+            item.tramite) {
+            <tr class="border-b last:border-b-0">
+              <td class="py-3 pr-4 font-semibold text-slate-800">
+                {{ item.pregunta }}
+              </td>
+
+              <td class="py-3 pr-4 text-slate-600">
+                {{ item.departamento }}
+              </td>
+
+              <td class="py-3 pr-4 text-slate-600">
+                {{ item.tramite }}
+              </td>
+
+              <td class="py-3 pr-4">
+                <span class="font-bold text-red-600">
+                  {{ item.porcentaje_negativas }}%
+                </span>
+                <span class="text-xs text-slate-500">
+                  ({{ item.total_negativas }}/{{ item.total_respuestas }})
+                </span>
+              </td>
+
+              <td class="py-3">
+                <span class="rounded-full px-3 py-1 text-xs font-semibold"
+                  [class.bg-red-100]="item.porcentaje_negativas >= 70"
+                  [class.text-red-700]="item.porcentaje_negativas >= 70"
+                  [class.bg-amber-100]="item.porcentaje_negativas >= 40 && item.porcentaje_negativas < 70"
+                  [class.text-amber-700]="item.porcentaje_negativas >= 40 && item.porcentaje_negativas < 70"
+                  [class.bg-emerald-100]="item.porcentaje_negativas < 40"
+                  [class.text-emerald-700]="item.porcentaje_negativas < 40">
+                  {{ item.porcentaje_negativas >= 70 ? 'Crítico' : item.porcentaje_negativas >= 40 ? 'Atención' :
+                  'Controlado' }}
+                </span>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    } @else {
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-10 text-center">
+      <p class="text-slate-500">
+        Cargando estadísticas generales...
+      </p>
+    </div>
+    }
+
+  </div>
+</section>
+} 
+
+@if (this.authService.isAdmin()) {
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 space-y-4">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h3 class="text-lg font-bold text-slate-800">
+      Departamentos registrados
+    </h3>
+
+    <span class="text-sm text-slate-500">
+      {{ listadoDepartamentos.length }} en total
+    </span>
+  </div>
+
+  <!-- Botones -->
+  <div class="flex flex-wrap gap-3">
+    @for (dep of listadoDepartamentos; track dep.id) {
+      <button
+        (click)="getEstadistica(dep.id)"
+        class="px-5 py-3 rounded-2xl font-semibold text-sm
+               bg-gradient-to-r from-[#200f21] via-[#382039] to-[#5a3d5c]
+               text-white shadow-md hover:shadow-lg
+               hover:scale-[1.03] active:scale-[0.97]
+               transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-indigo-300"
+      >
+        {{ dep.nombre }}
+      </button>
+    }
+  </div>
+
+</div>
+
+}
+
+@if (estadisticas)
+{
+<section class="min-h-screen p-4 sm:p-6 lg:p-8">
+  <div class="mx-auto max-w-7xl space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">
+        Estadísticas de Encuesta
+      </h1>
+      <p class="text-slate-600">
+        Departamento: {{ estadisticas?.departamento?.nombre }}
+      </p>
+    </div>
+
+    @if (estadisticas) {
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Personas encuestadas</p>
+        <h2 class="mt-3 text-4xl font-bold text-slate-900">
+          {{ estadisticas.resumen.total_personas_encuestadas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Grupos únicos de respuestas
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Total respuestas</p>
+        <h2 class="mt-3 text-4xl font-bold text-indigo-700">
+          {{ estadisticas.resumen.total_respuestas_registradas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Respuestas registradas
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Trámites evaluados</p>
+        <h2 class="mt-3 text-4xl font-bold text-emerald-600">
+          {{ estadisticas.resumen.total_tramites_con_respuestas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Con respuestas activas
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Trámite más respondido</p>
+        <h2 class="mt-3 text-2xl font-bold text-pink-600 line-clamp-2">
+          {{ estadisticas.tramites[0]?.tramite || 'Sin datos' }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          {{ estadisticas.tramites[0]?.total_personas || 0 }} personas
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Trámites -->
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800">
+            Respuestas por trámite
+          </h3>
+          <p class="text-sm text-slate-500">
+            Conteo de personas y respuestas por tipo de trámite
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        @for (tramite of estadisticas.tramites; track tramite.id) {
+        <div class="rounded-3xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 p-5 text-white shadow-md">
+          <p class="text-sm font-semibold text-white/80">Trámite</p>
+
+          <h4 class="mt-2 text-xl font-bold leading-snug">
+            {{ tramite.tramite }}
+          </h4>
+
+          <div class="mt-5 grid grid-cols-2 gap-3">
+            <div class="rounded-2xl bg-white/20 p-3">
+              <p class="text-xs text-white/80">Personas</p>
+              <p class="text-2xl font-bold">
+                {{ tramite.total_personas }}
+              </p>
+            </div>
+
+            <div class="rounded-2xl bg-white/20 p-3">
+              <p class="text-xs text-white/80">Respuestas</p>
+              <p class="text-2xl font-bold">
+                {{ tramite.total_respuestas }}
+              </p>
+            </div>
+          </div>
+
+          <p class="mt-4 text-sm text-white/90">
+            Promedio respuesta:
+            <span class="font-bold">
+              {{ tramite.promedio_orden_respuesta || 'N/A' }}
+            </span>
+          </p>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Preguntas generales -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      @for (pregunta of estadisticas.preguntas; track pregunta.pregunta_departamento_id) {
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+        <h3 class="text-lg font-bold text-slate-800">
+          {{ pregunta.pregunta }}
+        </h3>
+
+        <p class="mt-1 text-sm text-slate-500">
+          {{ pregunta.total_respuestas }} respuestas
+        </p>
+
+        <div class="mt-5 space-y-4">
+          @for (respuesta of pregunta.respuestas; track respuesta.respuesta_id) {
+          <div>
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm font-semibold text-slate-700">
+                {{ respuesta.respuesta }}
+              </p>
+
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold px-2 py-1 rounded-full"
+                  [ngClass]="getBadgeClase(respuesta.porcentaje)">
+                  {{ respuesta.porcentaje < 40 ? 'Bajo' : respuesta.porcentaje < 70 ? 'Medio' : 'Alto' }} </span>
+
+                    <p class="text-sm font-bold text-slate-900">
+                      {{ respuesta.porcentaje }}%
+                    </p>
+              </div>
+            </div>
+
+            <div class="mt-2 h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-500"
+                [ngClass]="getColorClase(respuesta.porcentaje)" [style.width.%]="respuesta.porcentaje">
+              </div>
+            </div>
+
+            <p class="mt-1 text-xs text-slate-500">
+              {{ respuesta.total }} respuestas
+            </p>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Detalle por trámite -->
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">
+        Detalle por trámite y pregunta
+      </h3>
+
+      <div class="space-y-6">
+        @for (tramite of estadisticas.detalle_por_tramite; track tramite.tramite_id) {
+        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+          <h4 class="text-xl font-bold text-slate-900">
+            {{ tramite.tramite }}
+          </h4>
+
+          <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            @for (pregunta of tramite.preguntas; track pregunta.pregunta) {
+            <div class="rounded-2xl bg-white border border-slate-200 p-4">
+              <p class="font-bold text-slate-800">
+                {{ pregunta.pregunta }}
+              </p>
+
+              <p class="mt-1 text-sm text-slate-500">
+                {{ pregunta.total_respuestas }} respuestas
+              </p>
+
+              <div class="mt-4 space-y-3">
+                @for (respuesta of pregunta.respuestas; track respuesta.respuesta) {
+                <div>
+                  <div class="flex justify-between gap-3 text-sm">
+                    <span class="font-medium text-slate-700">
+                      {{ respuesta.respuesta }}
+                    </span>
+
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-semibold px-2 py-1 rounded-full"
+                        [ngClass]="getBadgeClase(respuesta.porcentaje)">
+                        {{ respuesta.porcentaje < 40 ? 'Bajo' : respuesta.porcentaje < 70 ? 'Medio' : 'Alto' }} </span>
+
+                          <span class="font-bold text-slate-900">
+                            {{ respuesta.porcentaje }}%
+                          </span>
+                    </div>
+                  </div>
+
+                  <div class="mt-2 h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                      [ngClass]="getColorClase(respuesta.porcentaje)" [style.width.%]="respuesta.porcentaje">
+                    </div>
+                  </div>
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    } @else {
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-10 text-center">
+      <p class="text-slate-500">
+        Cargando estadísticas...
+      </p>
+    </div>
+    }
+
+  </div>
+</section>
+}
+

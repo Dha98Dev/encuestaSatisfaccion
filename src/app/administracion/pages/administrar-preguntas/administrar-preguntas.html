@@ -1,0 +1,231 @@
+<section class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+  <div class="mx-auto max-w-7xl space-y-5">
+
+    <!-- Header -->
+    <div class="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 class="text-xl sm:text-2xl font-bold text-slate-900">
+            Listado de preguntas registradas
+          </h3>
+          <p class="mt-1 text-sm text-slate-500">
+            Usuario: <span class="font-semibold text-slate-700">{{ authService.getUser()?.usuario }}</span>
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98] w-full sm:w-auto"
+          (click)="agregarPregunta = true"
+        >
+          <i class="pi pi-plus"></i>
+          Agregar pregunta
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    @if (tableDinamica.data) {
+      <div class="rounded-2xl bg-white border border-slate-200 shadow-sm p-3 sm:p-5 overflow-hidden">
+        <div class="overflow-x-auto">
+          <app-dhatatable
+            [showButtonExportData]="false"
+            [columns]="tableDinamica.columns"
+            [data]="tableDinamica.data">
+          </app-dhatatable>
+        </div>
+      </div>
+    }
+
+  </div>
+</section>
+
+<p-dialog
+  header="Agregar pregunta"
+  [modal]="true"
+  [(visible)]="agregarPregunta"
+  [style]="{ width: 'min(94vw, 56rem)' }"
+  [contentStyle]="{ padding: '0' }"
+  [breakpoints]="{ '960px': '92vw', '640px': '96vw' }"
+  styleClass="rounded-2xl overflow-hidden"
+>
+  <div class="max-h-[78vh] overflow-y-auto p-4 sm:p-6 bg-white">
+    <p-tabs value="0">
+
+      <p-tablist class="overflow-x-auto">
+        <p-tab value="0">Asignar pregunta</p-tab>
+        <p-tab value="1">Crear pregunta</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+
+        <!-- ASIGNAR PREGUNTA -->
+        <p-tabpanel value="0">
+          <form
+            class="flex flex-col gap-6 pt-5"
+            #formAsignar="ngForm"
+            (ngSubmit)="guardarAsignacionPregunta()"
+          >
+            <div class="space-y-5">
+
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Pregunta
+                </label>
+
+                <p-select
+                  name="preguntaSeleccionada"
+                  [options]="catalogoPreguntas"
+                  optionLabel="descripcion"
+                  placeholder="Seleccione una pregunta"
+                  class="w-full"
+                  [(ngModel)]="preguntaSeleccionada"
+                  required
+                  (onChange)="idPreguntaSeleccionada = preguntaSeleccionada.id"
+                />
+              </div>
+
+              <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                <div class="mb-4">
+                  <h4 class="text-base font-bold text-slate-800">
+                    Departamentos
+                  </h4>
+                  <p class="mt-1 text-sm text-slate-500">
+                    Seleccione el o los departamentos donde aplicará la pregunta.
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  @for (dep of authService.getDepartamentos(); track dep.id) {
+                    <label
+                      [for]="'asignar-' + dep.id"
+                      class="flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer transition hover:bg-slate-50"
+                      [class.bg-indigo-50]="isDepartamentoSeleccionado(dep.id)"
+                      [class.border-indigo-300]="isDepartamentoSeleccionado(dep.id)"
+                      [class.border-slate-200]="!isDepartamentoSeleccionado(dep.id)"
+                    >
+                      <input
+                        type="checkbox"
+                        class="h-4 w-4 shrink-0 accent-indigo-600"
+                        [id]="'asignar-' + dep.id"
+                        [value]="dep.id"
+                        [checked]="isDepartamentoSeleccionado(dep.id)"
+                        [disabled]="authService.getDepartamentos().length === 1"
+                        (change)="toggleDepartamento(dep.id, $event)"
+                      />
+
+                      <span class="text-sm font-medium text-slate-700 truncate">
+                        {{ dep.nombre }}
+                      </span>
+                    </label>
+                  }
+                </div>
+              </div>
+
+            </div>
+
+            <div class="sticky bottom-0 bg-white flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-slate-200">
+              <p-button
+                label="Cancelar"
+                severity="secondary"
+                type="button"
+                styleClass="w-full sm:w-auto"
+                (click)="cerrarDialogoPregunta()"
+              />
+
+              <p-button
+                label="Guardar asignación"
+                severity="help"
+                type="submit"
+                styleClass="w-full sm:w-auto"
+                [disabled]="!formAsignar.valid || departamentosSeleccionados.length === 0"
+              />
+            </div>
+          </form>
+        </p-tabpanel>
+
+        <!-- CREAR PREGUNTA -->
+        <p-tabpanel value="1">
+          <form
+            class="flex flex-col gap-6 pt-5"
+            #formCrear="ngForm"
+            (ngSubmit)="guardarPregunta()"
+          >
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+              <label for="nuevaPregunta" class="mb-2 block text-sm font-semibold text-slate-700">
+                Pregunta a registrar
+              </label>
+
+              <textarea
+                pInputTextarea
+                id="nuevaPregunta"
+                name="nuevaPregunta"
+                rows="4"
+                class="w-full resize-none rounded-xl border border-slate-300 p-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                placeholder="Ej. ¿Cómo calificas la atención recibida?"
+                [(ngModel)]="nuevaPregunta"
+                required>
+              </textarea>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+              <div class="mb-4">
+                <h4 class="text-base font-bold text-slate-800">
+                  Departamentos
+                </h4>
+                <p class="mt-1 text-sm text-slate-500">
+                  Seleccione dónde se asignará la nueva pregunta.
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @for (dep of authService.getDepartamentos(); track dep.id) {
+                  <label
+                    [for]="'crear-' + dep.id"
+                    class="flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer transition hover:bg-slate-50"
+                    [class.bg-indigo-50]="isDepartamentoSeleccionado(dep.id)"
+                    [class.border-indigo-300]="isDepartamentoSeleccionado(dep.id)"
+                    [class.border-slate-200]="!isDepartamentoSeleccionado(dep.id)"
+                  >
+                    <input
+                      type="checkbox"
+                      class="h-4 w-4 shrink-0 accent-indigo-600"
+                      [id]="'crear-' + dep.id"
+                      [value]="dep.id"
+                      [checked]="isDepartamentoSeleccionado(dep.id)"
+                      [disabled]="authService.getDepartamentos().length === 1"
+                      (change)="toggleDepartamento(dep.id, $event)"
+                    />
+
+                    <span class="text-sm font-medium text-slate-700 truncate">
+                      {{ dep.nombre }}
+                    </span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <div class="sticky bottom-0 bg-white flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t border-slate-200">
+              <p-button
+                label="Cancelar"
+                severity="secondary"
+                type="button"
+                styleClass="w-full sm:w-auto"
+                (click)="cerrarDialogoPregunta()"
+              />
+
+              <p-button
+                label="Guardar pregunta"
+                severity="help"
+                type="submit"
+                styleClass="w-full sm:w-auto"
+                [disabled]="nuevaPregunta.trim() === '' || departamentosSeleccionados.length === 0"
+              />
+            </div>
+          </form>
+        </p-tabpanel>
+
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</p-dialog>

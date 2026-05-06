@@ -1,1 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'tailwindcss';
+@import "primeicons/primeicons.css";
+:root{
+    --tinto:#790726;
+    --cafe:#CCB6A1;
+    --cafe-oscuro:#a89786;
+    --gris-fondo:#fcfcfc;
+    --oscuro-inst:#2C2C2C;
+    --oscuro-calido:#475569;
+    --text-claro:#ffffff
+}
