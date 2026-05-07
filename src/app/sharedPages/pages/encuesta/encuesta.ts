@@ -48,7 +48,6 @@ export class Encuesta {
 
     const idDepartamento = this.activateRoute.snapshot.paramMap.get('idDepartamento');
     this.idDepartamento = idDepartamento!;
-    console.log(idDepartamento);
 
     this.getListadoPreguntas();
     this.getRepuestas();
@@ -58,7 +57,6 @@ export class Encuesta {
     this.preguntasService.getPreguntasDepartamentoNoAuth(this.idDepartamento).subscribe({
       next: (resp) => {
         this.listadoPreguntas = resp.data.slice(0, 2);
-        console.log(resp.data);
         if (this.listadoPreguntas.length <=0 &&  !this.authService.isLoggedIn()) {
           this.router.navigate(['/auth/login'])
         }else if (this.listadoPreguntas.length <=0 &&  this.authService.isLoggedIn()) {
@@ -79,7 +77,6 @@ export class Encuesta {
         this.cd.markForCheck();
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }
@@ -90,7 +87,6 @@ export class Encuesta {
         this.cd.markForCheck();
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }
@@ -111,7 +107,6 @@ export class Encuesta {
       this.respuestasEncuesta.push(data);
     }
 
-    console.log(this.respuestasEncuesta);
   }
   isRespuestaSeleccionada(pregunta: PreguntasPorDepartamentoData, respuesta: any): boolean {
     return this.respuestasEncuesta.some(
@@ -122,11 +117,8 @@ export class Encuesta {
   }
   enviarEncuesta(): void {
     if (this.respuestasEncuesta.length == 2) {
-      console.log('enviando las respuestas al backend');
-      console.log(this.respuestasEncuesta);
       this.preguntasService.responderEncuesta(this.respuestasEncuesta).subscribe({
         next: (resp) => {
-          console.log(resp);
           this.mostrarDialogoGracias = true;
           this.respuestasEncuesta = [];
           this.TramiteSeleccionado={} as Tramite
@@ -139,7 +131,6 @@ export class Encuesta {
           }, 6000);
         },
         error: (err) => {
-          console.log(err);
         },
       });
     }

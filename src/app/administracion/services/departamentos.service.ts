@@ -1,24 +1,27 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Env } from '../../core/env/env';
-import { TramitesResponse } from '../interfaces/tramites.interface';
 import { AuthService } from '../../auth/services/Auth.service';
+import { Env } from '../../core/env/env';
 
 @Injectable({ providedIn: 'root' })
-export class TramiteService {
+export class DepartamentoService {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
   ) {}
   private url: string = Env.url;
 
-  getTiposTramitesByDepartamento(idDepartamento: string) {
-    return this.http.get<TramitesResponse>(this.url + `tramites/departamento/${idDepartamento}`);
-  }
-
-  guardarTramite(data: any) {
+  getDepartamentos() {
     const token = this.authService.getToken();
-    return this.http.post<TramitesResponse>(this.url + `tramites`, data, {
+    return this.http.get<any>(this.url + 'departamentos', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+  saveDepartamentos(data:any) {
+    const token = this.authService.getToken();
+    return this.http.post<any>(this.url + 'departamentos',data,  {
       headers: {
         Authorization: `Bearer ${token}`,
       },

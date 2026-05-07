@@ -6,6 +6,7 @@ import { PreguntasService } from '../../services/preguntas.service';
 import { forkJoin } from 'rxjs';
 import { EstadisticasDepartamentoResponse, EstadisticasGeneralResponse } from '../../interfaces/estadistica.interface';
 import { EstadisticaService } from '../../services/estadistica.service';
+import { DepartamentoService } from '../../services/departamentos.service';
 @Component({
   selector: 'app-estadistica',
   standalone: false,
@@ -18,6 +19,7 @@ export class Estadistica {
     public authService: AuthService,
     private preguntaService: PreguntasService,
     private estadisticasService: EstadisticaService,
+    private departamentoService: DepartamentoService,
   ) {}
 
   public listadoDepartamentos: any[] = [];
@@ -37,17 +39,15 @@ export class Estadistica {
   }
 
   getDepartamentos() {
-    this.preguntaService.getDepartamentos().subscribe({
+    this.departamentoService.getDepartamentos().subscribe({
       next: (resp) => {
         let data: any[] = resp.data;
         this.listadoDepartamentos = data.filter((dep) => {
           return dep.nombre != 'ADMIN';
         });
-        console.log(this.listadoDepartamentos);
         this.cd.markForCheck();
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }
@@ -70,7 +70,6 @@ export class Estadistica {
           data: resp.data ?? [],
         }));
 
-        console.log('Resumen respuestas:', this.resumenRespuestas);
 
         this.cd.markForCheck();
       },

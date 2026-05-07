@@ -8,6 +8,7 @@ import {
   PreguntaDepartamento,
   PreguntaDepartamentoResponse,
 } from '../../../interfaces/departamento.interfaces';
+import { DepartamentoService } from '../../services/departamentos.service';
 
 export interface preguntas {
   id: string;
@@ -25,6 +26,7 @@ export class AdministrarPreguntas {
   constructor(
     private cd: ChangeDetectorRef,
     private preguntasService: PreguntasService,
+    private departamentoService: DepartamentoService,
     public authService: AuthService,
   ) {}
   public tableDinamica: DinamicTableData = {} as DinamicTableData;
@@ -48,13 +50,11 @@ export class AdministrarPreguntas {
       next: (resp) => {
         setTimeout(() => {
           this.catalogoPreguntas = this.getPreguntasNoAsignadas(resp.data, this.catalogoPreguntasDepartamento);
-          console.log(this.catalogoPreguntas);
           
         }, 200);
         this.cd.markForCheck();
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }
@@ -105,29 +105,25 @@ export class AdministrarPreguntas {
         this.cd.markForCheck();
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }
 
   // Método para manejar el clic en el botón
   verDetalle(row: any) {
-    console.log('Ver detalle de:', row);
     // Aquí puedes abrir un modal, navegar, etc.
   }
   getDepartamentos() {
-    this.preguntasService.getDepartamentos().subscribe({
+    this.departamentoService.getDepartamentos().subscribe({
       next: (resp) => {
         let data: any[] = resp.data;
         let departamentosFiltrados = data.filter((item) => {
           return item.nombre != 'ADMIN';
         });
         this.departamentos = departamentosFiltrados;
-        console.log(this.departamentos);
         this.cd.markForCheck();
       },
       error: (err) => {
-        console.log(err);
       },
     });
   }
@@ -197,7 +193,6 @@ export class AdministrarPreguntas {
 
     forkJoin(requests).subscribe({
       next: () => {
-        console.log('Todas las asignaciones completadas');
         this.cerrarDialogoPregunta();
         this.getPreguntasDepartamento();
       },
@@ -223,7 +218,6 @@ export class AdministrarPreguntas {
           this.guardarAsignacionPregunta();
         },
         error: (err) => {
-          console.log(err);
         },
       });
   }

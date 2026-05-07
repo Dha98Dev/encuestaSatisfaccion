@@ -12,6 +12,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Estadistica } from './pages/estadistica/estadistica';
 import { HighchartsChartDirective, provideHighcharts } from 'highcharts-angular';
 import { GraficaBarra } from './components/grafica-barra/grafica-barra';
+import { Usuarios } from './pages/usuarios/usuarios';
+import { AdministrarTramites } from './pages/administrar-tramites/administrar-tramites';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import { GraficaBarra } from './components/grafica-barra/grafica-barra';
     NavbarAdmin,
     Encuesta,
     Estadistica,
-    GraficaBarra
+    GraficaBarra,
+    Usuarios,
+    AdministrarTramites
   ],
   imports: [
     CommonModule,

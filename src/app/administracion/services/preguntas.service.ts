@@ -40,14 +40,7 @@ export class PreguntasService {
       },
     });
   }
-  getDepartamentos() {
-    const token = this.authService.getToken();
-    return this.http.get<any>(this.url + 'departamentos', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
+
   getCatalogoRespuestas() {
     const token = this.authService.getToken();
 

@@ -63,7 +63,7 @@ export class Login {
        }else{
           this.router.navigate(['/a/estadistica']);
        }
-        console.log(resp);
+        
         
         // const roles = this.authService.roles();
         // if (roles.some((r) => r.slug === 'prensa')) {

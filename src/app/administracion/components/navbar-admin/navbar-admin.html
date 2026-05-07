@@ -13,7 +13,7 @@
 
 
 
-    @if (AuthService.isLoggedIn()) {
+    @if (AuthService.isLoggedIn() && itemsAdmin.length>0) {
     <div class="w-full">
         <div class="flex flex-col gap-3 rounded-2xl bg-white">
             <p-panelmenu [model]="itemsAdmin" class="w-full" />

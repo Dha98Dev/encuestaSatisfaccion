@@ -1,0 +1,496 @@
+<section class="rounded-3xl bg-white border border-slate-200 shadow-sm p-5 space-y-5">
+
+    <!-- Header / acciones -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-slate-900">
+                Administración
+            </h2>
+            <p class="text-sm text-slate-500">
+                Gestiona usuarios y subjefaturas del sistema
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+            <button type="button" (click)="showNewUser = true" class="inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3
+               bg-gradient-to-r from-[#200f21] via-[#382039] to-[#5a3d5c]
+               text-white font-semibold shadow-md hover:shadow-lg
+               transition-all duration-200">
+                <i class="pi pi-user-plus"></i>
+                Registrar usuario
+            </button>
+
+            <button type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3
+               bg-slate-100 text-slate-700 font-semibold
+               hover:bg-slate-200 hover:text-slate-900
+               transition-all duration-200" (click)="showNewDepartamento=true">
+                <i class="pi pi-building"></i>
+                Registrar subjefatura
+            </button>
+        </div>
+    </div>
+
+    <!-- listado de los usuarios -->
+    @if (tableDinamica.data) {
+    <div class="rounded-2xl bg-white border border-slate-200 shadow-sm p-3 sm:p-5 overflow-hidden">
+        <div class="overflow-x-auto">
+            <app-dhatatable [showButtonExportData]="false" [columns]="tableDinamica.columns" [data]="tableDinamica.data"
+                (rowClick)="verDetallesUsuario($event)">
+            </app-dhatatable>
+        </div>
+    </div>
+    }
+
+</section>
+
+<p-dialog [(visible)]="showNewUser" [modal]="true" [draggable]="false" [resizable]="false"
+    [style]="{ width: '92vw', maxWidth: '30rem' }">
+    <ng-template #header>
+        <div class="inline-flex items-center gap-3">
+            <p-avatar icon="pi pi-user-plus" shape="circle" />
+            <div>
+                <h3 class="font-bold text-slate-900">Nuevo usuario</h3>
+                <p class="text-xs text-slate-500">Registro de acceso al sistema</p>
+            </div>
+        </div>
+    </ng-template>
+
+    <form [formGroup]="formUsuario" class="space-y-5 pt-2">
+        <p class="text-sm text-slate-500">
+            Captura la información del nuevo usuario.
+        </p>
+
+        <div class="space-y-2">
+            <label class="block text-sm font-semibold text-slate-700">
+                Subjefatura
+            </label>
+
+            <p-select class="w-full" formControlName="departamentos" [options]="departamentos" optionValue="id"
+                optionLabel="nombre" placeholder="Selecciona una subjefatura" />
+
+            @if (formUsuario.get('departamento_id')?.touched && formUsuario.get('departamento_id')?.invalid) {
+            <p class="text-xs text-red-600">La subjefatura es obligatoria.</p>
+            }
+        </div>
+
+        <div class="space-y-2">
+            <label for="username" class="block text-sm font-semibold text-slate-700">
+                Nombre de usuario
+            </label>
+
+            <input pInputText id="username" formControlName="usuario" class="w-full rounded-xl" autocomplete="off"
+                placeholder="Ej. juan.perez" />
+
+            @if (formUsuario.get('usuario')?.touched && formUsuario.get('usuario')?.hasError('required')) {
+            <p class="text-xs text-red-600">El usuario es obligatorio.</p>
+            }
+
+            @if (formUsuario.get('usuario')?.touched && formUsuario.get('usuario')?.hasError('minlength')) {
+            <p class="text-xs text-red-600">Mínimo 3 caracteres.</p>
+            }
+        </div>
+
+        <div class="space-y-2">
+            <label for="password" class="block text-sm font-semibold text-slate-700">
+                Contraseña
+            </label>
+
+            <div class="relative">
+                <input pInputText id="password" [type]="verPassword ? 'text' : 'password'" formControlName="password"
+                    class="w-full rounded-xl pr-12" autocomplete="new-password" placeholder="Ingresa una contraseña" />
+
+                <button type="button" (click)="verPassword = !verPassword"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition">
+                    <i [class]="verPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                </button>
+            </div>
+
+            @if (formUsuario.get('password')?.touched && formUsuario.get('password')?.hasError('required')) {
+            <p class="text-xs text-red-600">La contraseña es obligatoria.</p>
+            }
+
+            @if (formUsuario.get('password')?.touched && formUsuario.get('password')?.hasError('minlength')) {
+            <p class="text-xs text-red-600">Mínimo 6 caracteres.</p>
+            }
+        </div>
+
+        <div class="space-y-2">
+            <label for="password_confirmation" class="block text-sm font-semibold text-slate-700">
+                Confirmar contraseña
+            </label>
+
+            <div class="relative">
+                <input pInputText id="password_confirmation" [type]="verConfirmPassword ? 'text' : 'password'"
+                    formControlName="password_confirmation" class="w-full rounded-xl pr-12" autocomplete="new-password"
+                    placeholder="Confirma la contraseña" />
+
+                <button type="button" (click)="verConfirmPassword = !verConfirmPassword"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition">
+                    <i [class]="verConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                </button>
+            </div>
+
+            @if (formUsuario.get('password_confirmation')?.touched &&
+            formUsuario.get('password_confirmation')?.hasError('required')) {
+            <p class="text-xs text-red-600">Confirma la contraseña.</p>
+            }
+
+            @if (formUsuario.get('password_confirmation')?.hasError('noCoincide')) {
+            <p class="text-xs text-red-600">Las contraseñas no coinciden.</p>
+            }
+        </div>
+    </form>
+
+    <ng-template #footer>
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 w-full">
+            <p-button label="Cancelar" [text]="true" severity="secondary" (click)="showNewUser = false" />
+
+            <p-button label="Guardar usuario" icon="pi pi-save" [outlined]="true" severity="secondary"
+                [disabled]="formUsuario.invalid" (click)="guardarUsuario()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
+
+
+<!-- Diálogo para agregar una subjefatura -->
+<p-dialog [(visible)]="showNewDepartamento" [modal]="true" [draggable]="false" [resizable]="false"
+    [style]="{ width: '92vw', maxWidth: '28rem' }">
+    <ng-template #header>
+        <div class="inline-flex items-center gap-3">
+            <p-avatar icon="pi pi-building" shape="circle" />
+            <div>
+                <h3 class="font-bold text-slate-900">
+                    Nueva subjefatura
+                </h3>
+                <p class="text-xs text-slate-500">
+                    Registro de una nueva área
+                </p>
+            </div>
+        </div>
+    </ng-template>
+
+    <form [formGroup]="formDepartamento" class="space-y-5 pt-2">
+        <p class="text-sm text-slate-500">
+            Captura el nombre de la nueva subjefatura.
+        </p>
+
+        <div class="space-y-2">
+            <label for="nombreDepartamento" class="block text-sm font-semibold text-slate-700">
+                Nombre de subjefatura
+            </label>
+
+            <input pInputText id="nombreDepartamento" formControlName="nombre" class="w-full rounded-xl"
+                autocomplete="off" placeholder="Ej. Control Escolar" />
+
+            @if (formDepartamento.get('nombre')?.touched && formDepartamento.get('nombre')?.hasError('required')) {
+            <p class="text-xs text-red-600">
+                El nombre de la subjefatura es obligatorio.
+            </p>
+            }
+
+            @if (formDepartamento.get('nombre')?.touched && formDepartamento.get('nombre')?.hasError('minlength')) {
+            <p class="text-xs text-red-600">
+                Mínimo 3 caracteres.
+            </p>
+            }
+        </div>
+    </form>
+
+    <ng-template #footer>
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 w-full">
+            <p-button label="Cancelar" [text]="true" severity="secondary" (click)="showNewDepartamento = false" />
+
+            <p-button label="Guardar" icon="pi pi-save" [outlined]="true" severity="secondary"
+                [disabled]="formDepartamento.invalid" (click)="guardarDepartamento()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
+
+
+
+
+
+
+
+
+
+@if (visibleDetalleUsuario ) {
+
+<p-dialog header="Detalle de usuario" [modal]="true" [(visible)]="visibleDetalleUsuario" [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
+
+    <div class="card">
+        <p-tabs value="0">
+            <p-tablist>
+                <p-tab value="0">Información de usuario</p-tab>
+                <p-tab value="1">Acciones</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+                <p-tabpanel value="0">
+                    <section class="rounded-3xl bg-white border border-slate-200 shadow-sm p-5 space-y-5">
+
+                        <!-- Header -->
+                        <div class="flex flex-col gap-2">
+                            <h2 class="text-xl font-bold text-slate-900">
+                                Información del usuario
+                            </h2>
+                            <p class="text-sm text-slate-500">
+                                Detalle del usuario y subjefaturas asignadas
+                            </p>
+                        </div>
+                        <div>
+                            <p-button [routerLink]="['/encuesta', usuarioSeleccionado.departamentos[0].id]"
+                                severity="help" icon="pi pi-link" label="Ir a encuesta" />
+                        </div>
+
+                        <!-- Card usuario (SUAVE) -->
+                        <div class="rounded-3xl bg-slate-50 border border-slate-200 p-5 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
+                                        <i class="pi pi-user text-2xl"></i>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-sm text-slate-500">
+                                            Usuario
+                                        </p>
+                                        <h3 class="text-2xl font-bold text-slate-900">
+                                            {{ usuarioSeleccionado.usuario }}
+                                        </h3>
+                                    </div>
+                                </div>
+
+                                <span class="w-fit rounded-full px-4 py-2 text-sm font-semibold"
+                                    [class.bg-emerald-100]="usuarioSeleccionado.activo"
+                                    [class.text-emerald-700]="usuarioSeleccionado.activo"
+                                    [class.bg-rose-100]="!usuarioSeleccionado.activo"
+                                    [class.text-rose-700]="!usuarioSeleccionado.activo">
+                                    {{ usuarioSeleccionado.activo ? 'ACTIVO' : 'INACTIVO' }}
+                                </span>
+
+                            </div>
+                        </div>
+
+                        <!-- Departamentos -->
+                        <div class="rounded-3xl bg-slate-50 border border-slate-200 p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-slate-800">
+                                    Subjefaturas asignadas
+                                </h3>
+
+                                <span class="text-sm font-medium text-slate-500">
+                                    {{ usuarioSeleccionado.departamentos.length }} asignada(s)
+                                </span>
+                            </div>
+
+                            @if (usuarioSeleccionado.departamentos.length > 0) {
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                                @for (dep of usuarioSeleccionado.departamentos; track dep.id) {
+                                <div
+                                    class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm hover:shadow-md transition">
+
+                                    <div class="flex items-start justify-between gap-3">
+
+                                        <div>
+                                            <p class="text-xs font-medium text-slate-400">
+                                                Subjefatura
+                                            </p>
+
+                                            <h4 class="mt-1 font-semibold text-slate-900">
+                                                {{ dep.nombre }}
+                                            </h4>
+                                        </div>
+
+                                        <span class="rounded-full px-3 py-1 text-xs font-semibold"
+                                            [class.bg-emerald-100]="dep.activo" [class.text-emerald-700]="dep.activo"
+                                            [class.bg-rose-100]="!dep.activo" [class.text-rose-700]="!dep.activo">
+                                            {{ dep.activo ? 'ACTIVA' : 'INACTIVA' }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                                }
+
+                            </div>
+                            } @else {
+
+                            <div class="rounded-2xl bg-white border border-dashed border-slate-300 p-8 text-center">
+                                <i class="pi pi-building text-3xl text-slate-300"></i>
+                                <p class="mt-3 font-medium text-slate-600">
+                                    Sin subjefaturas asignadas
+                                </p>
+                            </div>
+
+                            }
+                        </div>
+
+                    </section>
+                </p-tabpanel>
+                <p-tabpanel value="1">
+
+                    <div class="space-y-4">
+
+                        <!-- Acción: Desactivar usuario -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl border "
+                            [ngClass]="usuarioSeleccionado.activo ? 'border-red-100 bg-red-50' : 'border-emerald-100 bg-emerald-50'">
+
+                            <div>
+                                <p class="font-semibold"
+                                    [ngClass]="usuarioSeleccionado.activo ? 'text-red-700' : 'text-sky-700'">
+                                    Desactivar usuario
+                                </p>
+                                <p class="text-sm"
+                                    [ngClass]="usuarioSeleccionado.activo ? 'text-red-600' : 'text-sky-600'">
+                                    El usuario no podrá iniciar sesión ni acceder al sistema.
+                                </p>
+                            </div>
+
+                            <p-button [severity]="usuarioSeleccionado.activo ? 'danger': 'info'"
+                                [label]="usuarioSeleccionado.activo ?'Desactivar' : 'Activar'" icon="pi pi-trash"
+                                (onClick)="activacionUsuario()" />
+                        </div>
+
+                        <!-- Acción: Cambiar password -->
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl border border-amber-100 bg-amber-50">
+
+                            <div>
+                                <p class="font-semibold text-amber-700">
+                                    Cambiar contraseña
+                                </p>
+                                <p class="text-sm text-amber-600">
+                                    Permite asignar una nueva contraseña al usuario.
+                                </p>
+                            </div>
+
+                            <p-button severity="warn" label="Cambiar" icon="pi pi-pencil"
+                                (onClick)="changePassword=true; visibleDetalleUsuario=false" />
+                        </div>
+
+                    </div>
+
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+    </div>
+
+
+</p-dialog>
+
+}
+
+
+
+<p-dialog
+  header="Cambiar contraseña"
+  [modal]="true"
+  [(visible)]="changePassword"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '92vw', maxWidth: '28rem' }"
+>
+  <form
+    [formGroup]="changePasswordForm"
+    (ngSubmit)="resetearPassword()"
+    class="space-y-5"
+  >
+    <p class="text-sm text-slate-500">
+      Actualiza la contraseña del usuario seleccionado.
+    </p>
+
+    <!-- Nueva contraseña -->
+    <div class="space-y-2">
+      <label for="password" class="block text-sm font-semibold text-slate-700">
+        Nueva contraseña
+      </label>
+
+      <div class="relative">
+        <input
+          pInputText
+          id="password"
+          formControlName="password"
+          [type]="verPassword ? 'text' : 'password'"
+          class="w-full rounded-xl pr-12"
+          autocomplete="new-password"
+          placeholder="Ingresa la nueva contraseña"
+        />
+
+        <button
+          type="button"
+          (click)="verPassword = !verPassword"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition"
+        >
+          <i [class]="verPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+        </button>
+      </div>
+
+      @if (changePasswordForm.get('password')?.touched && changePasswordForm.get('password')?.hasError('required')) {
+        <p class="text-xs text-red-600">La contraseña es obligatoria.</p>
+      }
+
+      @if (changePasswordForm.get('password')?.touched && changePasswordForm.get('password')?.hasError('minlength')) {
+        <p class="text-xs text-red-600">Mínimo 6 caracteres.</p>
+      }
+    </div>
+
+    <!-- Confirmar contraseña -->
+    <div class="space-y-2">
+      <label for="password_confirmation" class="block text-sm font-semibold text-slate-700">
+        Confirmar contraseña
+      </label>
+
+      <div class="relative">
+        <input
+          pInputText
+          id="password_confirmation"
+          formControlName="password_confirmation"
+          [type]="verConfirmPassword ? 'text' : 'password'"
+          class="w-full rounded-xl pr-12"
+          autocomplete="new-password"
+          placeholder="Confirma la nueva contraseña"
+        />
+
+        <button
+          type="button"
+          (click)="verConfirmPassword = !verConfirmPassword"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition"
+        >
+          <i [class]="verConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+        </button>
+      </div>
+
+      @if (changePasswordForm.get('password_confirmation')?.touched && changePasswordForm.get('password_confirmation')?.hasError('required')) {
+        <p class="text-xs text-red-600">Confirma la contraseña.</p>
+      }
+
+      @if (changePasswordForm.get('password_confirmation')?.hasError('noCoincide')) {
+        <p class="text-xs text-red-600">Las contraseñas no coinciden.</p>
+      }
+    </div>
+
+    <!-- Botones -->
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-3">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [text]="true"
+        type="button"
+        (click)="changePassword = false"
+      />
+
+      <p-button
+        label="Guardar"
+        icon="pi pi-save"
+        type="submit"
+        [disabled]="changePasswordForm.invalid"
+      />
+    </div>
+  </form>
+</p-dialog>
