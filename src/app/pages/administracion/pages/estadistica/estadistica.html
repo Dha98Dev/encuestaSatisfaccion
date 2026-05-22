@@ -1,0 +1,280 @@
+ 
+
+@if (this.authService.isAdmin()) {
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 space-y-4">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h3 class="text-lg font-bold text-slate-800">
+      Departamentos registrados
+    </h3>
+
+    <span class="text-sm text-slate-500">
+      {{ listadoDepartamentos.length }} en total
+    </span>
+  </div>
+
+  <!-- Botones -->
+  <div class="flex flex-wrap gap-3">
+    @for (dep of listadoDepartamentos; track dep.id) {
+      <button
+        (click)="getEstadistica(dep.id)"
+        class="px-5 py-3 rounded-2xl font-semibold text-sm
+               bg-gradient-to-r from-[#200f21] via-[#382039] to-[#5a3d5c]
+               text-white shadow-md hover:shadow-lg
+               hover:scale-[1.03] active:scale-[0.97]
+               transition-all duration-200
+               focus:outline-none focus:ring-2 focus:ring-indigo-300"
+      >
+        {{ dep.nombre }}
+      </button>
+    }
+  </div>
+
+</div>
+
+}
+
+@if (estadisticas)
+{
+<section class="min-h-screen p-4 sm:p-6 lg:p-8">
+  <div class="mx-auto max-w-7xl space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">
+        Estadísticas de Encuesta
+      </h1>
+      <p class="text-slate-600">
+        Departamento: {{ estadisticas.departamento.nombre }}
+      </p>
+    </div>
+
+    @if (estadisticas) {
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Personas encuestadas</p>
+        <h2 class="mt-3 text-4xl font-bold text-slate-900">
+          {{ estadisticas.resumen.total_personas_encuestadas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Grupos únicos de respuestas
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Total respuestas</p>
+        <h2 class="mt-3 text-4xl font-bold text-indigo-700">
+          {{ estadisticas.resumen.total_respuestas_registradas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Respuestas registradas
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Trámites evaluados</p>
+        <h2 class="mt-3 text-4xl font-bold text-emerald-600">
+          {{ estadisticas.resumen.total_tramites_con_respuestas }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          Con respuestas activas
+        </p>
+      </div>
+
+      <div class="rounded-3xl bg-white/80 backdrop-blur border border-white shadow-sm p-6">
+        <p class="text-sm font-semibold text-slate-500">Trámite más respondido</p>
+        <h2 class="mt-3 text-2xl font-bold text-pink-600 line-clamp-2">
+          {{ estadisticas.tramites[0]?.tramite || 'Sin datos' }}
+        </h2>
+        <p class="mt-2 text-sm text-slate-500">
+          {{ estadisticas.tramites[0]?.total_personas || 0 }} personas
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Trámites -->
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800">
+            Respuestas por trámite
+          </h3>
+          <p class="text-sm text-slate-500">
+            Conteo de personas y respuestas por tipo de trámite
+          </p>
+        </div>
+      </div>
+
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+  @for (tramite of estadisticas.tramites; track tramite.id) {
+    <div class="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
+      
+      <!-- Encabezado con badges -->
+      <div class="mb-3 flex items-start justify-between">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Trámite
+          </span>
+          <!-- Badge de estado (ejemplo) -->
+          <span class="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">
+            Activo
+          </span>
+        </div>
+        <i class="pi pi-file text-gray-400 text-sm transition-colors group-hover:text-gray-500"></i>
+      </div>
+
+      <!-- Título -->
+      <h4 class="text-sm font-semibold text-gray-800 mb-4">
+        {{ tramite.tramite }}
+      </h4>
+
+      <!-- Estadísticas con badges -->
+      <div class="flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+        <div class="text-center">
+          <p class="text-[10px] text-gray-500">Personas</p>
+          <div class="mt-1">
+            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-sm font-bold text-blue-700">
+              {{ tramite.total_personas }}
+            </span>
+          </div>
+        </div>
+        <div class="w-px h-8 bg-gray-200"></div>
+        <div class="text-center">
+          <p class="text-[10px] text-gray-500">Respuestas</p>
+          <div class="mt-1">
+            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-sm font-bold text-emerald-700">
+              {{ tramite.total_respuestas }}
+            </span>
+          </div>
+        </div>
+        <div class="w-px h-8 bg-gray-200"></div>
+      </div>
+
+    </div>
+  }
+</div>
+    </div>
+
+    <!-- Preguntas generales -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      @for (pregunta of estadisticas.preguntas; track pregunta.pregunta_departamento_id) {
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+        <h3 class="text-lg font-bold text-slate-800">
+          {{ pregunta.pregunta }}
+        </h3>
+
+        <p class="mt-1 text-sm text-slate-500">
+          {{ pregunta.total_respuestas }} respuestas
+        </p>
+
+        <div class="mt-5 space-y-4">
+          @for (respuesta of pregunta.respuestas; track respuesta.respuesta_id) {
+          <div>
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm font-semibold text-slate-700">
+                {{ respuesta.respuesta }}
+              </p>
+
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold px-2 py-1 rounded-full"
+                  [ngClass]="getBadgeClase(respuesta.porcentaje)">
+                  {{ respuesta.porcentaje < 40 ? 'Bajo' : respuesta.porcentaje < 70 ? 'Medio' : 'Alto' }} </span>
+
+                    <p class="text-sm font-bold text-slate-900">
+                      {{ respuesta.porcentaje }}%
+                    </p>
+              </div>
+            </div>
+
+            <div class="mt-2 h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-500"
+                [ngClass]="getColorClaseAvanzado(respuesta.porcentaje)" [style.width.%]="respuesta.porcentaje">
+              </div>
+            </div>
+
+            <p class="mt-1 text-xs text-slate-500">
+              {{ respuesta.total }} respuestas
+            </p>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Detalle por trámite -->
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-4 sm:p-6">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">
+        Detalle por trámite y pregunta
+      </h3>
+
+      <div class="space-y-6">
+        @for (tramite of estadisticas.detalle_por_tramite; track tramite.tramite_id) {
+        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+          <h4 class="text-xl font-bold text-slate-900">
+            {{ tramite.tramite }}
+          </h4>
+
+          <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            @for (pregunta of tramite.preguntas; track pregunta.pregunta) {
+            <div class="rounded-2xl bg-white border border-slate-200 p-4">
+              <p class="font-bold text-slate-800">
+                {{ pregunta.pregunta }}
+              </p>
+
+              <p class="mt-1 text-sm text-slate-500">
+                {{ pregunta.total_respuestas }} respuestas
+              </p>
+
+              <div class="mt-4 space-y-3">
+                @for (respuesta of pregunta.respuestas; track respuesta.respuesta) {
+                <div>
+                  <div class="flex justify-between gap-3 text-sm">
+                    <span class="font-medium text-slate-700">
+                      {{ respuesta.respuesta }}
+                    </span>
+
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-semibold px-2 py-1 rounded-full"
+                        [ngClass]="getBadgeClase(respuesta.porcentaje)">
+                        {{ respuesta.porcentaje < 40 ? 'Bajo' : respuesta.porcentaje < 70 ? 'Medio' : 'Alto' }} </span>
+
+                          <span class="font-bold text-slate-900">
+                            {{ respuesta.porcentaje }}%
+                          </span>
+                    </div>
+                  </div>
+
+                  <div class="mt-2 h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                      [ngClass]="getColorClaseAvanzado(respuesta.porcentaje)" [style.width.%]="respuesta.porcentaje">
+                    </div>
+                  </div>
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    } @else {
+    <div class="rounded-3xl bg-white shadow-sm border border-slate-200 p-10 text-center">
+      <p class="text-slate-500">
+        Cargando estadísticas...
+      </p>
+    </div>
+    }
+
+  </div>
+</section>
+}
+

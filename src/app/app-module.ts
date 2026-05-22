@@ -8,11 +8,13 @@ import Aura from '@primeuix/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
 import { PrimeNgModule } from './core/PrimeNg/PrimeNg.module';
 import { provideHighcharts } from 'highcharts-angular';
-import { NotFound } from './sharedPages/pages/not-found/not-found';
+import { NotFound } from './pages/sharedPages/pages/not-found/not-found';
+import { Configuracion } from './pages/subjefatura/pages/configuracion/configuracion';
 @NgModule({
   declarations: [
     App,
     NotFound,
+
   ],
   imports: [
     BrowserModule,

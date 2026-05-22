@@ -1,18 +1,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { authGuard } from './auth/guards/auth.guard';
-import { Encuesta } from './sharedPages/pages/encuesta/encuesta';
-import { NotFound } from './sharedPages/pages/not-found/not-found';
+import { authGuard } from './pages/auth/guards/auth.guard';
+import { NotFound } from './pages/sharedPages/pages/not-found/not-found';
+import { Encuesta } from './pages/sharedPages/pages/encuesta/encuesta';
 
 const routes: Routes = [
-  { path: 'auth', loadChildren: () => import('./auth/auth-module').then((m) => m.AuthModule) },
+  { path: 'auth', loadChildren: () => import('./pages/auth/auth-module').then((m) => m.AuthModule) },
   {
     path: 'a',
     loadChildren: () =>
-      import('./administracion/administracion-module').then((m) => m.AdministracionModule),
+      import('./pages/administracion/administracion-module').then((m) => m.AdministracionModule),
     canActivate: [authGuard],
   },
-  { path: 'encuesta/:idDepartamento', component: Encuesta},
+  {
+    path:'subjefatura', loadChildren: ()=>import('./pages/subjefatura/subjefatura-module').then(m => m.SubjefaturaModule)
+  },
+  
+  { path: 'encuesta/:pantalla', component: Encuesta},
   { path: 'not-found', component: NotFound},
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
 ];

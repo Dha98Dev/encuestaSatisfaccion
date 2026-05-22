@@ -1,0 +1,25 @@
+<header class="bg-slate-50 ">
+    <nav class="px-5 py-5 flex justify-end">
+        <button class="border px-5 bg-fuchsia-600 py-2 text-fuchsia-50 rounded-lg" (click)="visibleMenu=true"> <i class="pi pi-bars" ></i></button>
+    </nav>
+</header>
+<p-drawer [(visible)]="visibleMenu" position="right">
+    <ng-template pTemplate="header">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-briefcase text-[var(--oscuro-inst)]"></i>
+            <span class="text-base font-semibold text-slate-700">Administración</span>
+        </div>
+    </ng-template>
+
+
+
+    @if (AuthService.isLoggedIn() && itemsAdmin.length>0) {
+    <div class="w-full">
+        <div class="flex flex-col gap-3 rounded-2xl bg-white">
+            <p-panelmenu [model]="itemsAdmin" class="w-full" />
+        </div>
+    </div>
+    }
+
+
+</p-drawer>
