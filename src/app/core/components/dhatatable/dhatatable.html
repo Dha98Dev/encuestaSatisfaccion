@@ -59,26 +59,10 @@
     de <strong>{{ totalItems() }}</strong> registros
   </div>
 
-  <!-- <div class="flex items-center gap-1">
-    <button class="px-2 py-1 border rounded text-sm" (click)="goToFirst()" [disabled]="page() === 1">«</button>
-    <button class="px-2 py-1 border rounded text-sm" (click)="prevPage()" [disabled]="page() === 1">‹</button>
-
-    @for (p of pagesWindow(); track $index) {
-      <button
-        class="px-2 py-1 border rounded text-sm"
-        [class.bg-gray-900]="p === page()"
-        [class.text-white]="p === page()"
-        (click)="goToPage(p)">
-        {{ p }}
-      </button>
-    }
-
-    <button class="px-2 py-1 border rounded text-sm" (click)="nextPage()" [disabled]="page() === totalPages()">›</button>
-    <button class="px-2 py-1 border rounded text-sm" (click)="goToLast()" [disabled]="page() === totalPages()">»</button>
-  </div> -->
+ 
 </div>
 
-<div class="overflow-auto rounded-xl bg-slate-100 px-5">
+<div class="overflow-auto rounded-xl bg-mist-100 px-5">
   <table class="min-w-full text-[13px] border-separate border-spacing-y-3">
     <thead class="text-gray-600 sticky top-0 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <tr class="bg-white rounded-lg">

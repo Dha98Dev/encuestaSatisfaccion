@@ -123,6 +123,15 @@ export class EnviarEncusta implements OnDestroy {
       }
     })
   }
+
+  liberarPantalla(pantalla:string){
+    this.websocketService.liberarPantalla(pantalla).subscribe({
+      next:resp =>{
+        console.log(resp);
+      }
+    })
+  }
+
   ngOnDestroy() {
     this.websocketService.desconectar();
   }

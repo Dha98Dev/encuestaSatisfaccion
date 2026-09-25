@@ -12,6 +12,7 @@ import { AuthService } from '../../../auth/services/Auth.service';
 import { respuesta } from '../../../../core/interfaces/departamento.interfaces';
 import { WebsocketService } from '../../../../core/services/websocket.service';
 import { PantallasService } from '../../../subjefatura/services/pantallas.service';
+import { Pantalla } from '../../../subjefatura/interfaces/pantallas.interface';
 @Component({
   selector: 'app-encuesta',
   standalone: false,
@@ -24,7 +25,7 @@ export class Encuesta implements OnDestroy {
     private preguntasService: PreguntasService,
     private activateRoute: ActivatedRoute,
     private websocketService: WebsocketService,
-    private pantallaService:PantallasService
+    private pantallaService: PantallasService,
   ) {}
   mostrarDialogoGracias = false;
   public listadoPreguntas: PreguntasPorDepartamentoData[] = [];
@@ -45,9 +46,11 @@ export class Encuesta implements OnDestroy {
   public listadoTramites: Tramite[] = [];
   public TramiteSeleccionado: string = '';
   public nombreTramiteSeleccionado: string = '';
-  public nombrePantalla:string=''
+  public nombrePantalla: string = '';
   preguntaActualIndex = 0;
   animacionPregunta = 'animate__zoomIn';
+  public equipos: Pantalla[] = [];
+  private identificadorEncuesta: string = '';
 
   ngOnInit() {
     const codigoPantalla = this.activateRoute.snapshot.paramMap.get('pantalla');
@@ -59,7 +62,7 @@ export class Encuesta implements OnDestroy {
 
     this.pantalla = codigoPantalla;
     this.getRepuestas();
-    this.getPantalla()
+    this.getPantalla();
 
     this.websocketService.conectar();
 
@@ -67,25 +70,62 @@ export class Encuesta implements OnDestroy {
       console.log('Encuesta recibida:', evento);
       this.cargarEncuestaDesdeEvento(evento);
     });
-  }
-  getPantalla(){
-    this.pantallaService.getInfoPantalla(this.pantalla).subscribe({
-      next:resp =>{
-        this.nombrePantalla=resp.nombre
-        console.log(this.nombrePantalla);
-        
-      },
-      error: err =>{
 
+    this.websocketService.escucharEstadoPantallas((evento) => {
+      console.log('Estado pantalla actualizado:', evento);
+
+      setTimeout(() => {
+        this.actualizarEstadoPantalla(evento);
+      }, 3000);
+    });
+  }
+
+  actualizarEstadoPantalla(evento: any) {
+    this.equipos = this.equipos.map((pantalla) => {
+      if (pantalla.codigo === evento.codigo) {
+        return {
+          ...pantalla,
+          disponible: evento.disponible,
+        };
       }
-    })
+
+      return pantalla;
+    });
+
+    if (this.pantalla === evento.codigo && evento.disponible === true) {
+      this.limpiarEncuestaActual();
+    }
+
+    this.cd.markForCheck();
+  }
+
+  limpiarEncuestaActual() {
+    this.mostrarDialogoGracias = false;
+    this.listadoPreguntas = [];
+    this.respuestasEncuesta = [];
+    this.TramiteSeleccionado = '';
+    this.nombreTramiteSeleccionado = '';
+    this.preguntaActualIndex = 0;
+    this.animacionPregunta = 'animate__zoomIn';
+
+    this.cd.detectChanges();
+  }
+
+  getPantalla() {
+    this.pantallaService.getInfoPantalla(this.pantalla).subscribe({
+      next: (resp) => {
+        this.nombrePantalla = resp.nombre;
+      },
+      error: (err) => {},
+    });
   }
   cargarEncuestaDesdeEvento(evento: any) {
     this.listadoPreguntas = evento.encuesta;
     this.TramiteSeleccionado = evento.tramite_id;
+    this.identificadorEncuesta = evento.reserva_uuid;
     this.nombreTramiteSeleccionado = evento.nombre_tramite;
     this.preguntaActualIndex = 0;
-    this.cd.markForCheck()
+    this.cd.markForCheck();
     this.cd.detectChanges();
   }
 
@@ -125,9 +165,15 @@ export class Encuesta implements OnDestroy {
   }
   enviarEncuesta(): void {
     if (this.respuestasEncuesta.length == this.listadoPreguntas.length) {
-      this.preguntasService.responderEncuesta(this.respuestasEncuesta).subscribe({
+      let payload = {
+        reserva_uuid: this.identificadorEncuesta,
+        respuestas: this.respuestasEncuesta,
+      };
+
+      this.preguntasService.responderEncuesta(payload).subscribe({
         next: (resp) => {
           this.mostrarDialogoGracias = true;
+          this.identificadorEncuesta=''
           this.respuestasEncuesta = [];
           this.TramiteSeleccionado = '';
           this.listadoPreguntas = [];
@@ -245,8 +291,7 @@ export class Encuesta implements OnDestroy {
     }, 250);
   }
 
-
-    ngOnDestroy() {
+  ngOnDestroy() {
     if (this.pantalla) {
       this.websocketService.salirPantalla();
     }
