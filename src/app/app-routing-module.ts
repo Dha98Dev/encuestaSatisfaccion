@@ -3,8 +3,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from './pages/auth/guards/auth.guard';
 import { NotFound } from './pages/sharedPages/pages/not-found/not-found';
 import { Encuesta } from './pages/sharedPages/pages/encuesta/encuesta';
+import { Inicio } from './pages/sharedPages/pages/inicio/inicio';
 
 const routes: Routes = [
+  {path:'inicio', component: Inicio},
   { path: 'auth', loadChildren: () => import('./pages/auth/auth-module').then((m) => m.AuthModule) },
   {
     path: 'a',
@@ -18,7 +20,7 @@ const routes: Routes = [
   
   { path: 'encuesta/:pantalla', component: Encuesta},
   { path: 'not-found', component: NotFound},
-  { path: '', redirectTo: 'auth', pathMatch: 'full' },
+  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
 ];
 
 @NgModule({

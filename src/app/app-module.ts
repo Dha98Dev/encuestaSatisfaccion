@@ -10,10 +10,12 @@ import { PrimeNgModule } from './core/PrimeNg/PrimeNg.module';
 import { provideHighcharts } from 'highcharts-angular';
 import { NotFound } from './pages/sharedPages/pages/not-found/not-found';
 import { Configuracion } from './pages/subjefatura/pages/configuracion/configuracion';
+import { Inicio } from './pages/sharedPages/pages/inicio/inicio';
 @NgModule({
   declarations: [
     App,
     NotFound,
+    Inicio,
 
   ],
   imports: [

@@ -1,156 +1,411 @@
-<div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+<div class="space-y-4">
 
-  <!-- Acciones -->
-  <div class="flex gap-2 flex-wrap">
-    @if (showButtonExportData) {
-    <!-- <button class="px-3 py-2 border rounded text-sm" type="button" (click)="copyToClipboard()">
-        Copiar
-      </button> -->
-    <button class="px-3 py-2 border rounded text-sm bg-teal-500 font-medium text-white" type="button"
-      (click)="exportToExcel()">
-      <i class="pi pi-file-excel"></i>
-      Exportar Excel
-    </button>
-    <button class="px-3 py-2 border rounded text-sm bg-red-500 font-medium text-white" type="button"
-      (click)="exportToPDF()">
-      <i class="pi pi-file-pdf"></i>
-      Exportar PDF
-    </button>
-    }
-  </div>
+  <!-- ===================================================== -->
+  <!-- BARRA SUPERIOR -->
+  <!-- ===================================================== -->
 
-  <!-- ⚙️ Tamaño de página -->
-  <div class="flex items-center gap-2">
-    <label class="text-sm text-gray-600">Mostrar</label>
-    <select class="border rounded px-2 py-1 text-sm" [ngModel]="pageSize()" (ngModelChange)="onChangePageSize($event)">
-      @for (opt of pageSizeOptions; track $index) {
-      <option [value]="opt">{{ opt }}</option>
-      }
-    </select>
-    <span class="text-sm text-gray-600">por página</span>
-  </div>
-</div>
+  <div
+    class="rounded-2xl p-4">
 
-<!-- Barra de filtros -->
-<div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-  <!-- 🔍 Búsqueda global -->
-  <input type="text" [ngModel]="filtroGlobal()" (ngModelChange)="setFiltroGlobal($event)"
-    placeholder="Buscar en toda la tabla..." class="border rounded px-3 py-2 text-sm w-full sm:w-80" />
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-  <!-- Filtros por columna -->
-  @if (columns.length) {
-  <div class="flex gap-2 flex-wrap">
-    @for (col of columns; track $index) {
-    @if (col.filterable) {
-    <input [type]="col.type ?? 'text'" [placeholder]="'Filtrar ' + col.label"
-      class="border rounded px-2 py-1 text-xs w-36" [ngModel]="filtrosPorCol()[col.key]"
-      (ngModelChange)="updateFiltro(col.key, $event)" />
-    }
-    }
-  </div>
-  }
-</div>
+      <!-- Exportaciones -->
+      <div class="flex flex-wrap items-center gap-2">
 
-<!-- Resumen y paginación superior (opcional) -->
-<div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-  <div class="text-sm text-gray-600">
-    Mostrando
-    <strong>{{ startIndex() }}</strong>–<strong>{{ endIndex() }}</strong>
-    de <strong>{{ totalItems() }}</strong> registros
-  </div>
+        @if (showButtonExportData) {
 
- 
-</div>
+        <button
+          type="button"
+          (click)="exportToExcel()"
+          class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-700 transition-all hover:border-emerald-300 hover:bg-emerald-100">
 
-<div class="overflow-auto rounded-xl bg-mist-100 px-5">
-  <table class="min-w-full text-[13px] border-separate border-spacing-y-3">
-    <thead class="text-gray-600 sticky top-0 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <tr class="bg-white rounded-lg">
-        @for (col of columns; track $index) {
-        <th
-          class="px-4 py-3 font-semibold uppercase tracking-wide text-[11px] text-gray-800 text-center cursor-pointer select-none first:rounded-l-xl last:rounded-r-xl"
-          (click)="onHeaderClick(col)" title="Ordenar por {{ col.label }}">
-          <div class="flex justify-center items-center gap-1">
-            <span>{{ col.label }}</span>
-            @if (sortKey() === col.key) {
-            <span class="text-gray-400 text-[10px]">
-              {{ sortDir() === 'asc' ? '▲' : '▼' }}
-            </span>
-            }
-          </div>
-        </th>
+          <i class="pi pi-file-excel"></i>
+
+          Exportar Excel
+
+        </button>
+
+        <button
+          type="button"
+          (click)="exportToPDF()"
+          class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 transition-all hover:border-red-300 hover:bg-red-100">
+
+          <i class="pi pi-file-pdf"></i>
+
+          Exportar PDF
+
+        </button>
+
         }
-      </tr>
-    </thead>
 
-    <tbody>
-      @if (totalItems() === 0) {
-      <tr>
-        <td class="px-4 py-6 text-center text-gray-500 bg-white rounded-xl shadow-sm"
-          [attr.colspan]="(columns.length || 1)">
-          Sin resultados
-        </td>
-      </tr>
-      } @else {
-      @for (row of pagedData(); track trackByIndex($index, row)) {
-      <tr class="bg-white rounded-2xl ring-gray-200 hover:shadow-md transition-all cursor-pointer"
-        (click)="onRowClick(row)" title="Ver detalles">
-        @for (col of columns; track $index) {
-        <td
-          class="px-4 py-3 whitespace-nowrap text-gray-600 text-center first:rounded-l-xl last:rounded-r-xl {{ col.className || '' }}">
-          <!-- @if (col.key === 'porcentaje') {
-                  <div class="flex items-center gap-3">
-                    <div class="h-2 w-40 bg-gray-200 rounded-full overflow-hidden">
-                      <div class="h-full bg-emerald-500" [style.width.%]="row[col.key] || 0"></div>
-                    </div>
-                    <span class="text-emerald-600 font-medium">
-                      {{ row[col.key] ?? 0 }}%
-                    </span>
-                  </div> -->
-          <!-- } @else { -->
-          <span
-            class="inline-flex items-center justify-center px-5 py-1 rounded-lg text-xs  transition-all duration-200"
-            [ngClass]="[
-    col.className || '',
-    col.cellClass ? col.cellClass(row[col.key], row, col) : ''
-  ]">
-            {{ row[col.key] }}
-          </span>
+      </div>
 
-          @if(col.key == 'boton'){
-          <p-button [icon]="iconButton" size="small" severity="contrast" />
+
+      <!-- Tamaño de página -->
+      <div
+        class="flex w-fit items-center gap-2 rounded-xl bg-slate-50 px-3 py-2">
+
+        <span class="text-xs font-medium text-slate-500">
+          Mostrar
+        </span>
+
+        <select
+          class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 outline-none transition focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-100"
+          [ngModel]="pageSize()"
+          (ngModelChange)="onChangePageSize($event)">
+
+          @for (opt of pageSizeOptions; track $index) {
+          <option [value]="opt">
+            {{ opt }}
+          </option>
           }
-          <!-- } -->
 
-        </td>
+        </select>
+
+        <span class="text-xs font-medium text-slate-500">
+          por página
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ===================================================== -->
+  <!-- FILTROS -->
+  <!-- ===================================================== -->
+
+  <div
+    class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+
+    <div class="flex flex-col gap-4">
+
+      <!-- Búsqueda general -->
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+
+        <div class="relative w-full lg:max-w-md">
+
+          <i
+            class="pi pi-search absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+          </i>
+
+          <input
+            type="text"
+            [ngModel]="filtroGlobal()"
+            (ngModelChange)="setFiltroGlobal($event)"
+            placeholder="Buscar en todos los registros..."
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-fuchsia-300 focus:bg-white focus:ring-4 focus:ring-fuchsia-50" />
+
+        </div>
+
+
+        <!-- Resumen -->
+        <div
+          class="inline-flex w-fit items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-500">
+
+          <i class="pi pi-database text-[10px]"></i>
+
+          Mostrando
+
+          <strong class="text-slate-700">
+            {{ startIndex() }}–{{ endIndex() }}
+          </strong>
+
+          de
+
+          <strong class="text-slate-700">
+            {{ totalItems() }}
+          </strong>
+
+          registros
+
+        </div>
+
+      </div>
+
+
+      <!-- Filtros por columna -->
+      @if (columns.length) {
+
+      <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+
+        @for (col of columns; track $index) {
+
+        @if (col.filterable) {
+
+        <div class="relative">
+
+          <i
+            class="pi pi-filter absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+          </i>
+
+          <input
+            [type]="col.type ?? 'text'"
+            [placeholder]="col.label"
+            [ngModel]="filtrosPorCol()[col.key]"
+            (ngModelChange)="updateFiltro(col.key, $event)"
+            class="w-40 rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-3 text-xs text-slate-700 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-fuchsia-300 focus:ring-2 focus:ring-fuchsia-50" />
+
+        </div>
+
         }
-      </tr>
-      }
-      }
-    </tbody>
-  </table>
-</div>
 
-<!-- Paginación inferior (opcional, espejo de la superior) -->
-<div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-  <div class="text-sm text-gray-600">
-    Página <strong>{{ page() }}</strong> de <strong>{{ totalPages() }}</strong>
+        }
+
+      </div>
+
+      }
+
+    </div>
+
   </div>
 
-  <div class="flex items-center gap-1">
-    <button class="px-2 py-1 border rounded text-sm" (click)="goToFirst()" [disabled]="page() === 1">«</button>
-    <button class="px-2 py-1 border rounded text-sm" (click)="prevPage()" [disabled]="page() === 1">‹</button>
 
-    @for (p of pagesWindow(); track $index) {
-    <button class="px-2 py-1 border rounded text-sm" [class.bg-gray-900]="p === page()"
-      [class.text-white]="p === page()" (click)="goToPage(p)">
-      {{ p }}
-    </button>
-    }
 
-    <button class="px-2 py-1 border rounded text-sm" (click)="nextPage()"
-      [disabled]="page() === totalPages()">›</button>
-    <button class="px-2 py-1 border rounded text-sm" (click)="goToLast()"
-      [disabled]="page() === totalPages()">»</button>
+  <!-- ===================================================== -->
+  <!-- TABLA -->
+  <!-- ===================================================== -->
+
+  <div
+    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+    <div class="overflow-auto">
+
+      <table class="min-w-full border-collapse text-sm">
+
+        <!-- Header -->
+        <thead class="sticky top-0 z-10 bg-slate-50">
+
+          <tr class="border-b border-slate-200">
+
+            @for (col of columns; track $index) {
+
+            <th
+              class="cursor-pointer select-none whitespace-nowrap px-4 py-3 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+              (click)="onHeaderClick(col)"
+              title="Ordenar por {{ col.label }}">
+
+              <div class="flex items-center justify-center gap-1.5">
+
+                <span>
+                  {{ col.label }}
+                </span>
+
+                @if (sortKey() === col.key) {
+
+                <i
+                  class="pi text-[9px] text-fuchsia-600"
+                  [ngClass]="sortDir() === 'asc'
+                    ? 'pi-sort-up-fill'
+                    : 'pi-sort-down-fill'">
+                </i>
+
+                } @else {
+
+                <i class="pi pi-sort-alt text-[8px] text-slate-300"></i>
+
+                }
+
+              </div>
+
+            </th>
+
+            }
+
+          </tr>
+
+        </thead>
+
+
+        <!-- Body -->
+        <tbody class="divide-y divide-slate-100">
+
+          @if (totalItems() === 0) {
+
+          <tr>
+
+            <td
+              [attr.colspan]="columns.length || 1"
+              class="px-6 py-14 text-center">
+
+              <div
+                class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+
+                <i class="pi pi-search text-lg"></i>
+
+              </div>
+
+              <p class="mt-3 text-sm font-semibold text-slate-600">
+                Sin resultados
+              </p>
+
+              <p class="mt-1 text-xs text-slate-400">
+                No se encontraron registros con los filtros aplicados.
+              </p>
+
+            </td>
+
+          </tr>
+
+          } @else {
+
+          @for (row of pagedData(); track trackByIndex($index, row)) {
+
+          <tr
+            class="group cursor-pointer bg-white transition-colors hover:bg-fuchsia-50/30"
+            (click)="onRowClick(row)"
+            title="Ver detalles">
+
+            @for (col of columns; track $index) {
+
+            <td
+              class="whitespace-nowrap px-4 py-3 text-center text-sm text-slate-600 {{ col.className || '' }}">
+
+              <span
+                class="inline-flex items-center justify-center rounded-lg px-3 py-1 text-xs transition-all duration-200"
+                [ngClass]="[
+                  col.className || '',
+                  col.cellClass
+                    ? col.cellClass(row[col.key], row, col)
+                    : ''
+                ]">
+
+                {{ row[col.key] }}
+
+              </span>
+
+
+              @if (col.key === 'boton') {
+
+              <button
+                type="button"
+                (click)="$event.stopPropagation();onRowClick(row)"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition hover:bg-fuchsia-700">
+
+                <i [class]="iconButton"></i>
+
+              </button>
+
+              }
+
+            </td>
+
+            }
+
+          </tr>
+
+          }
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
   </div>
+
+
+
+  <!-- ===================================================== -->
+  <!-- PAGINACIÓN -->
+  <!-- ===================================================== -->
+
+  <div
+    class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+
+    <!-- Información -->
+    <div class="text-xs text-slate-500">
+
+      Página
+
+      <strong class="font-semibold text-slate-700">
+        {{ page() }}
+      </strong>
+
+      de
+
+      <strong class="font-semibold text-slate-700">
+        {{ totalPages() }}
+      </strong>
+
+    </div>
+
+
+    <!-- Controles -->
+    <div class="flex flex-wrap items-center gap-1">
+
+      <!-- Primera -->
+      <button
+        type="button"
+        (click)="goToFirst()"
+        [disabled]="page() === 1"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs text-slate-500 transition hover:border-fuchsia-200 hover:bg-fuchsia-50 hover:text-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-40">
+
+        <i class="pi pi-angle-double-left"></i>
+
+      </button>
+
+
+      <!-- Anterior -->
+      <button
+        type="button"
+        (click)="prevPage()"
+        [disabled]="page() === 1"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs text-slate-500 transition hover:border-fuchsia-200 hover:bg-fuchsia-50 hover:text-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-40">
+
+        <i class="pi pi-angle-left"></i>
+
+      </button>
+
+
+      <!-- Páginas -->
+      @for (p of pagesWindow(); track $index) {
+
+      <button
+        type="button"
+        (click)="goToPage(p)"
+        class="inline-flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 text-xs font-semibold transition"
+        [ngClass]="p === page()
+          ? 'border-fuchsia-700 bg-fuchsia-700 text-white shadow-sm'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-fuchsia-200 hover:bg-fuchsia-50 hover:text-fuchsia-700'">
+
+        {{ p }}
+
+      </button>
+
+      }
+
+
+      <!-- Siguiente -->
+      <button
+        type="button"
+        (click)="nextPage()"
+        [disabled]="page() === totalPages()"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs text-slate-500 transition hover:border-fuchsia-200 hover:bg-fuchsia-50 hover:text-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-40">
+
+        <i class="pi pi-angle-right"></i>
+
+      </button>
+
+
+      <!-- Última -->
+      <button
+        type="button"
+        (click)="goToLast()"
+        [disabled]="page() === totalPages()"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs text-slate-500 transition hover:border-fuchsia-200 hover:bg-fuchsia-50 hover:text-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-40">
+
+        <i class="pi pi-angle-double-right"></i>
+
+      </button>
+
+    </div>
+
+  </div>
+
 </div>

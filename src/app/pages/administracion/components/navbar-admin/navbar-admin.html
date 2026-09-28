@@ -1,25 +1,159 @@
-<header class="bg-slate-50 ">
-    <nav class="px-5 py-5 flex justify-end">
-        <button class="border px-5 bg-fuchsia-600 py-2 text-fuchsia-50 rounded-lg" (click)="visibleAdminMenu=true"> <i class="pi pi-bars" ></i></button>
+<header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+
+    <nav class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-3">
+
+        <!-- Identidad -->
+        <div class="flex shrink-0 items-center gap-3">
+
+            <div
+                class="flex h-10 w-10 items-center justify-center rounded-xl bg-fuchsia-100 text-fuchsia-600">
+
+                <i class="pi pi-briefcase"></i>
+
+            </div>
+
+            <div class="hidden md:block">
+
+                <p class="text-sm font-semibold text-slate-700">
+                    Administración
+                </p>
+
+                <p class="text-xs text-slate-400">
+                    Encuesta de satisfacción
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Opciones -->
+        @if (AuthService.isLoggedIn()) {
+
+        <div class="flex items-center justify-end gap-2">
+
+            <!-- ========================= -->
+            <!-- ADMINISTRADOR -->
+            <!-- ========================= -->
+
+            @if (AuthService.isAdmin()) {
+
+            <button
+                type="button"
+                (click)="irUsuarios()"
+                class="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-fuchsia-600">
+
+                <i class="pi pi-users"></i>
+
+                <span class="hidden lg:inline">
+                    Usuarios
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                (click)="irEstadistica()"
+                class="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-fuchsia-600">
+
+                <i class="pi pi-chart-bar"></i>
+
+                <span class="hidden lg:inline">
+                    Estadística
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                (click)="irTramites()"
+                class="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-fuchsia-600">
+
+                <i class="pi pi-file"></i>
+
+                <span class="hidden lg:inline">
+                    Trámites
+                </span>
+
+            </button>
+
+
+            <!-- <button
+                type="button"
+                (click)="irConfiguracion()"
+                class="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-fuchsia-600">
+
+                <i class="pi pi-cog"></i>
+
+                <span class="hidden lg:inline">
+                    Configuración
+                </span>
+
+            </button> -->
+
+            }
+
+
+            <!-- ========================= -->
+            <!-- USUARIO / DEPARTAMENTO -->
+            <!-- ========================= -->
+
+            @if (!AuthService.isAdmin()) {
+
+            <button
+                type="button"
+                (click)="irEstadistica()"
+                class="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-fuchsia-600">
+
+                <i class="pi pi-chart-bar"></i>
+
+                <span class="hidden sm:inline">
+                    Estadística
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                (click)="irEncuesta()"
+                class="inline-flex items-center gap-2 rounded-xl bg-fuchsia-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-fuchsia-700 hover:shadow-md">
+
+                <i class="pi pi-file-edit"></i>
+
+                <span class="hidden sm:inline">
+                    Ir a encuesta
+                </span>
+
+            </button>
+
+            }
+
+
+            <!-- Separador -->
+            <div class="mx-1 hidden h-7 w-px bg-slate-200 sm:block"></div>
+
+
+            <!-- Cerrar sesión -->
+            <button
+                type="button"
+                (click)="cerrarSesion()"
+                class="inline-flex items-center gap-2 rounded-xl border border-red-100 px-3 py-2.5 text-sm font-medium text-red-500 transition hover:border-red-200 hover:bg-red-50">
+
+                <i class="pi pi-sign-out"></i>
+
+                <span class="hidden xl:inline">
+                    Cerrar sesión
+                </span>
+
+            </button>
+
+        </div>
+
+        }
+
     </nav>
+
 </header>
-<p-drawer [(visible)]="visibleAdminMenu" position="right">
-    <ng-template pTemplate="header">
-        <div class="flex items-center gap-2">
-            <i class="pi pi-briefcase text-[var(--oscuro-inst)]"></i>
-            <span class="text-base font-semibold text-slate-700">Administración</span>
-        </div>
-    </ng-template>
-
-
-
-    @if (AuthService.isLoggedIn() && itemsAdmin.length>0) {
-    <div class="w-full">
-        <div class="flex flex-col gap-3 rounded-2xl bg-white">
-            <p-panelmenu [model]="itemsAdmin" class="w-full" />
-        </div>
-    </div>
-    }
-
-
-</p-drawer>

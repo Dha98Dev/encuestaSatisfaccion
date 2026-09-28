@@ -22,6 +22,7 @@ export class Login {
   ) {}
   public login: FormGroup = {} as FormGroup;
   public loading = false;
+  verPassword: boolean = false;
   ngOnInit() {
     this.login = this.fb.group({
       usuario: [
@@ -61,9 +62,9 @@ export class Login {
         let id = resp.data.id
 
        if (!this.authService.isAdmin) {
-          this.router.navigate(['/encuesta', id]);
+          this.router.navigate(['/subjefatura/enviar-encuesta']);
        }else{
-          this.router.navigate(['/a/estadistica']);
+          this.router.navigate(['/a']);
        }
         
         

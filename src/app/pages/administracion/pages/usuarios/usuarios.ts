@@ -48,6 +48,7 @@ export class Usuarios {
     this.formUsuario = this.fb.group({
       departamentos: [null, Validators.required],
       usuario: ['', [Validators.required, Validators.minLength(3)]],
+      nombre_completo:['',[Validators.required, Validators.minLength(5)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       password_confirmation: ['', Validators.required],
     });

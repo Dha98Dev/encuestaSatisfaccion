@@ -19,91 +19,93 @@ export class AdministrarTramites {
 
   public listadoDepartamentos: any[] = [];
   public listadoTramitesDepartamentos: tramitesDepartamento[] = [];
-  // public tramite:string=''  
-  
-  
+  departamentoSeleccionadoId: number | string | null = null;
+  // public tramite:string=''
+
   ngOnInit() {
     this.getDepartamentos();
   }
 
-getDepartamentos(): void {
-  this.departamentoService.getDepartamentos()
-    .pipe(
-      map((resp: any) =>
-        resp.data.filter((dep: any) => dep.nombre !== 'ADMIN')
-      ),
+  getDepartamentos(): void {
+    this.departamentoService
+      .getDepartamentos()
+      .pipe(
+        map((resp: any) => resp.data.filter((dep: any) => dep.nombre !== 'ADMIN')),
 
-      switchMap((departamentos: any[]) => {
-        this.listadoDepartamentos = departamentos;
+        switchMap((departamentos: any[]) => {
+          this.listadoDepartamentos = departamentos;
 
-        const requests: Observable<tramitesDepartamento>[] = departamentos.map((dep: any) =>
-          this.tramitesService.getTiposTramitesByDepartamento(dep.id).pipe(
-            map((resp: any): tramitesDepartamento => ({
-              idDepartamento: dep.id,
-              descripcion: dep.nombre,
-              tramites: resp.data
-            }))
-          )
-        );
+          const requests: Observable<tramitesDepartamento>[] = departamentos.map((dep: any) =>
+            this.tramitesService.getTiposTramitesByDepartamento(dep.id).pipe(
+              map(
+                (resp: any): tramitesDepartamento => ({
+                  idDepartamento: dep.id,
+                  descripcion: dep.nombre,
+                  tramites: resp.data,
+                }),
+              ),
+            ),
+          );
 
-        return forkJoin(requests);
-      })
-    )
-    .subscribe({
-      next: (tramitesDepartamentos: tramitesDepartamento[]) => {
-        this.listadoTramitesDepartamentos = tramitesDepartamentos;
-        
-        this.cd.markForCheck();
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
-}
+          return forkJoin(requests);
+        }),
+      )
+      .subscribe({
+        next: (tramitesDepartamentos: tramitesDepartamento[]) => {
+          this.listadoTramitesDepartamentos = tramitesDepartamentos;
 
-seleccionarTodosDepartamento(dep: any): void {
-  dep.tramites.forEach((tramite: any) => tramite.seleccionado = true);
-}
+          this.cd.markForCheck();
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+  }
 
-limpiarSeleccionDepartamento(dep: any): void {
-  dep.tramites.forEach((tramite: any) => tramite.seleccionado = false);
-}
+  seleccionarTodosDepartamento(dep: any): void {
+    dep.tramites.forEach((tramite: any) => (tramite.seleccionado = true));
+  }
 
-tieneSeleccionDepartamento(dep: any): boolean {
-  return dep.tramites.some((tramite: any) => tramite.seleccionado);
-}
+  limpiarSeleccionDepartamento(dep: any): void {
+    dep.tramites.forEach((tramite: any) => (tramite.seleccionado = false));
+  }
 
-cambiarEstadoTramite(tramite: any): void {
-  tramite.activo = !tramite.activo;
+  tieneSeleccionDepartamento(dep: any): boolean {
+    return dep.tramites.some((tramite: any) => tramite.seleccionado);
+  }
 
-  // Aquí puedes llamar tu servicio/API
-  // this.tramitesService.actualizarEstado(tramite.id, tramite.activo).subscribe();
-}
+  cambiarEstadoTramite(tramite: any): void {
+    tramite.activo = !tramite.activo;
 
-cambiarEstadoSeleccionados(dep: any, activo: boolean): void {
-  dep.tramites
-    .filter((tramite: any) => tramite.seleccionado)
-    .forEach((tramite: any) => {
-      tramite.activo = activo;
-      tramite.seleccionado = false;
-    });
+    // Aquí puedes llamar tu servicio/API
+    // this.tramitesService.actualizarEstado(tramite.id, tramite.activo).subscribe();
+  }
 
-  // Aquí puedes llamar tu servicio/API para actualización masiva
-}
+  cambiarEstadoSeleccionados(dep: any, activo: boolean): void {
+    dep.tramites
+      .filter((tramite: any) => tramite.seleccionado)
+      .forEach((tramite: any) => {
+        tramite.activo = activo;
+        tramite.seleccionado = false;
+      });
 
-guardarTramiteEnDepartamento(idDepartamento:string, ){
-let newTramite=document.getElementById(idDepartamento) as HTMLInputElement
-let tramite = newTramite.value
-  if (tramite != '') {
-  this.tramitesService.guardarTramite({tramite, departamento_id:idDepartamento}).subscribe({
-    next : resp=>{
-      newTramite.value=''
-      this.getDepartamentos()
-    },
-    error: err=>{
-      
+    // Aquí puedes llamar tu servicio/API para actualización masiva
+  }
+
+  guardarTramiteEnDepartamento(idDepartamento: string) {
+    let newTramite = document.getElementById(idDepartamento) as HTMLInputElement;
+    let tramite = newTramite.value;
+    if (tramite != '') {
+      this.tramitesService.guardarTramite({ tramite, departamento_id: idDepartamento }).subscribe({
+        next: (resp) => {
+          newTramite.value = '';
+          this.getDepartamentos();
+        },
+        error: (err) => {},
+      });
     }
-  })
-}
-}
+  }
+  seleccionarDepartamento(idDepartamento: number | string): void {
+    this.departamentoSeleccionadoId = idDepartamento;
+  }
 }
