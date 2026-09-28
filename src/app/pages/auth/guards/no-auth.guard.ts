@@ -10,6 +10,11 @@ export const noAuthGuard: CanActivateFn = () => {
     return true;
   }
 
-  router.navigate(['a/estadistica']);
+  if (authService.isAdmin()) {
+    router.navigate(['/a/estadistica']);
+  } else {
+    router.navigate(['/subjefatura/enviar-encuesta']);
+  }
+
   return false;
 };

@@ -4,9 +4,10 @@ import { authGuard } from './pages/auth/guards/auth.guard';
 import { NotFound } from './pages/sharedPages/pages/not-found/not-found';
 import { Encuesta } from './pages/sharedPages/pages/encuesta/encuesta';
 import { Inicio } from './pages/sharedPages/pages/inicio/inicio';
+import { noAuthGuard } from './pages/auth/guards/no-auth.guard';
 
 const routes: Routes = [
-  {path:'inicio', component: Inicio},
+  {path:'inicio', component: Inicio, canActivate:[noAuthGuard]},
   { path: 'auth', loadChildren: () => import('./pages/auth/auth-module').then((m) => m.AuthModule) },
   {
     path: 'a',

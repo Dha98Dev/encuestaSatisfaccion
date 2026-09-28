@@ -14,10 +14,6 @@ export interface EstadisticasDepartamentoResponse {
   detalle_por_tramite: any[];
 }
 
-
-
-
-
 // estadisticas.interface.ts
 
 export interface EstadisticasResponse {
@@ -41,9 +37,9 @@ export interface EstadisticasResponse {
 
 // Nueva interfaz para la distribución (estructura anidada)
 export interface DistribucionCalificacionesResponse {
-  distribucion: DistribucionCalificacion[];  // Array de calificaciones
-  metricas_salud: MetricasSalud;             // Métricas agregadas
-  total_respuestas: number;                  // Total de respuestas
+  distribucion: DistribucionCalificacion[]; // Array de calificaciones
+  metricas_salud: MetricasSalud; // Métricas agregadas
+  total_respuestas: number; // Total de respuestas
 }
 
 // Interfaz para métricas de salud (nueva)
@@ -63,8 +59,8 @@ export interface DistribucionCalificacion {
   total_respuestas: number;
   porcentaje: number;
   categoria: string;
-  color?: string;    // Opcional (nuevo)
-  icono?: string;    // Opcional (nuevo)
+  color?: string; // Opcional (nuevo)
+  icono?: string; // Opcional (nuevo)
   respuesta_id?: string | null; // Opcional (nuevo)
 }
 
@@ -93,7 +89,8 @@ export interface ResumenEjecutivo {
     mensaje: string;
     color: string;
   };
-  umbrales_utilizados?: {  // Opcional (nuevo)
+  umbrales_utilizados?: {
+    // Opcional (nuevo)
     negativo: number;
     excelente: number;
   };
@@ -164,4 +161,59 @@ export interface RankingDepartamentos {
   peor_departamento: DesempenoDepartamento;
   top_3_mejores: DesempenoDepartamento[];
   top_3_peores: DesempenoDepartamento[];
+}
+
+export interface EstadisticaDepartamentoResponse {
+  success: boolean;
+  departamento: DepartamentoEstadistica;
+  resumen: ResumenEstadisticaDepartamento;
+  tramites: TramiteEstadistica[];
+  preguntas: PreguntaEstadistica[];
+  detalle_por_tramite: DetalleTramiteEstadistica[];
+}
+
+export interface DepartamentoEstadistica {
+  id: string;
+  nombre: string;
+}
+
+export interface ResumenEstadisticaDepartamento {
+  total_personas_encuestadas: number;
+  total_respuestas_registradas: number;
+  total_tramites_con_respuestas: number;
+}
+
+export interface TramiteEstadistica {
+  id: string;
+  tramite: string;
+  total_respuestas: number;
+  total_personas: number;
+  promedio_orden_respuesta: string | number;
+}
+
+export interface PreguntaEstadistica {
+  pregunta_departamento_id: string;
+  pregunta: string;
+  total_respuestas: number;
+  respuestas: RespuestaEstadistica[];
+}
+
+export interface RespuestaEstadistica {
+  respuesta_id?: string;
+  respuesta: string;
+  orden: number;
+  total: number;
+  porcentaje: number;
+}
+
+export interface DetalleTramiteEstadistica {
+  tramite_id: string;
+  tramite: string;
+  preguntas: PreguntaDetalleEstadistica[];
+}
+
+export interface PreguntaDetalleEstadistica {
+  pregunta: string;
+  total_respuestas: number;
+  respuestas: RespuestaEstadistica[];
 }

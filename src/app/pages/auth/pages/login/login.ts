@@ -61,7 +61,7 @@ export class Login {
         });
         let id = resp.data.id
 
-       if (!this.authService.isAdmin) {
+       if (!resp.data.is_admin) {
           this.router.navigate(['/subjefatura/enviar-encuesta']);
        }else{
           this.router.navigate(['/a']);

@@ -1,4 +1,3 @@
-
 <section class="min-h-screen bg-slate-50/70 px-4 py-6 sm:px-6 lg:px-8">
 
     <div class="mx-auto w-full max-w-7xl space-y-6">
@@ -11,6 +10,10 @@
 
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
+            <!-- ===================================================== -->
+            <!-- HEADER -->
+            <!-- ===================================================== -->
+
             <div
                 class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -22,6 +25,7 @@
                         <i class="pi pi-building"></i>
 
                     </div>
+
 
                     <div>
 
@@ -44,24 +48,30 @@
                     <i class="pi pi-list"></i>
 
                     {{ listadoDepartamentos.length }}
-                    {{ listadoDepartamentos.length === 1 ? 'subjefatura' : 'subjefaturas' }}
+
+                    {{
+                    listadoDepartamentos.length === 1
+                    ? 'subjefatura'
+                    : 'subjefaturas'
+                    }}
 
                 </span>
 
             </div>
 
 
+            <!-- ===================================================== -->
+            <!-- SUBJEFATURAS -->
+            <!-- ===================================================== -->
+
             <div class="flex flex-wrap gap-2 p-4">
 
                 @for (dep of listadoDepartamentos; track dep.id) {
 
-                <button
-                    type="button"
-                    (click)="getEstadistica(dep.id)"
+                <button type="button" (click)="getEstadistica(dep.id)"
                     class="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-fuchsia-200 hover:bg-fuchsia-50 hover:text-fuchsia-700 hover:shadow">
 
-                    <i
-                        class="pi pi-building text-xs text-slate-400 transition group-hover:text-fuchsia-600">
+                    <i class="pi pi-building text-xs text-slate-400 transition group-hover:text-fuchsia-600">
                     </i>
 
                     {{ dep.nombre }}
@@ -71,6 +81,129 @@
                     </i>
 
                 </button>
+
+                }
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- REPORTE GENERAL -->
+            <!-- ===================================================== -->
+
+            <div class="border-t border-slate-100 bg-slate-50/60 p-4">
+
+                <div
+                    class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+
+                    <!-- Información -->
+                    <div class="flex items-start gap-3">
+
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7B1E2B]/10 text-[#7B1E2B]">
+
+                            <i class="pi pi-download"></i>
+
+                        </div>
+
+
+                        <div>
+
+                            <h3 class="text-sm font-bold text-slate-800">
+                                Reporte consolidado
+                            </h3>
+
+                            <p class="mt-1 max-w-xl text-xs leading-5 text-slate-500">
+
+                                Genera un reporte utilizando la información de las
+
+                                <strong class="font-semibold text-slate-700">
+                                    {{ listadoDepartamentos.length }}
+                                </strong>
+
+                                subjefaturas registradas.
+
+                            </p>
+
+                            <p class="mt-1 text-[11px] text-slate-400">
+                                Se consultará nuevamente la información para generar datos actualizados.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Acciones -->
+                    <div class="flex shrink-0 flex-col gap-2 sm:flex-row">
+
+                        <!-- Excel -->
+                        <button type="button" (click)="generarReporte('excel')"
+                            [disabled]="cargandoReporte || listadoDepartamentos.length === 0"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700 transition-all hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50">
+
+                            @if (
+                            cargandoReporte &&
+                            formatoReporte === 'excel'
+                            ) {
+
+                            <i class="pi pi-spinner pi-spin"></i>
+
+                            Generando...
+
+                            } @else {
+
+                            <i class="pi pi-file-excel"></i>
+
+                            Descargar Excel
+
+                            }
+
+                        </button>
+
+
+                        <!-- PDF -->
+                        <button type="button" (click)="generarReporte('pdf')"
+                            [disabled]="cargandoReporte || listadoDepartamentos.length === 0"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-semibold text-red-700 transition-all hover:border-red-300 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50">
+
+                            @if (
+                            cargandoReporte &&
+                            formatoReporte === 'pdf'
+                            ) {
+
+                            <i class="pi pi-spinner pi-spin"></i>
+
+                            Generando...
+
+                            } @else {
+
+                            <i class="pi pi-file-pdf"></i>
+
+                            Descargar PDF
+
+                            }
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Error / advertencia -->
+                @if (errorReporte) {
+
+                <div
+                    class="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-700">
+
+                    <i class="pi pi-exclamation-triangle mt-0.5"></i>
+
+                    <span>
+                        {{ errorReporte }}
+                    </span>
+
+                </div>
 
                 }
 
@@ -166,8 +299,7 @@
 
                     </div>
 
-                    <div
-                        class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
 
                         <i class="pi pi-users text-lg"></i>
 
@@ -204,8 +336,7 @@
 
                     </div>
 
-                    <div
-                        class="flex h-11 w-11 items-center justify-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
 
                         <i class="pi pi-comments text-lg"></i>
 
@@ -242,8 +373,7 @@
 
                     </div>
 
-                    <div
-                        class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
 
                         <i class="pi pi-file-check text-lg"></i>
 
@@ -450,12 +580,11 @@
             <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
 
                 @for (
-                    pregunta of estadisticas.preguntas;
-                    track pregunta.pregunta_departamento_id
+                pregunta of estadisticas.preguntas;
+                track pregunta.pregunta_departamento_id
                 ) {
 
-                <article
-                    class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
 
                     <!-- Pregunta -->
                     <div class="flex items-start gap-3">
@@ -487,8 +616,8 @@
                     <div class="mt-5 space-y-4">
 
                         @for (
-                            respuesta of pregunta.respuestas;
-                            track respuesta.respuesta_id
+                        respuesta of pregunta.respuestas;
+                        track respuesta.respuesta_id
                         ) {
 
                         <div>
@@ -511,23 +640,16 @@
 
                                 <div class="flex shrink-0 items-center gap-2">
 
-                                    <span
-                                        class="rounded-full px-2 py-1 text-[10px] font-semibold"
+                                    <span class="rounded-full px-2 py-1 text-[10px] font-semibold"
                                         [ngClass]="getBadgeClase(respuesta.porcentaje)">
 
                                         {{
-                                            respuesta.porcentaje < 40
-                                                ? 'Bajo'
-                                                : respuesta.porcentaje < 70
-                                                    ? 'Medio'
-                                                    : 'Alto'
-                                        }}
+                                        respuesta.porcentaje < 40 ? 'Bajo' : respuesta.porcentaje < 70 ? 'Medio'
+                                            : 'Alto' }} </span>
 
-                                    </span>
-
-                                    <span class="min-w-[48px] text-right text-sm font-bold text-slate-900">
-                                        {{ respuesta.porcentaje }}%
-                                    </span>
+                                            <span class="min-w-[48px] text-right text-sm font-bold text-slate-900">
+                                                {{ respuesta.porcentaje }}%
+                                            </span>
 
                                 </div>
 
@@ -536,8 +658,7 @@
 
                             <div class="h-2 overflow-hidden rounded-full bg-slate-100">
 
-                                <div
-                                    class="h-full rounded-full transition-all duration-500"
+                                <div class="h-full rounded-full transition-all duration-500"
                                     [ngClass]="getColorClaseAvanzado(respuesta.porcentaje)"
                                     [style.width.%]="respuesta.porcentaje || 0">
                                 </div>
@@ -564,15 +685,13 @@
         <!-- DETALLE POR TRÁMITE -->
         <!-- ===================================================== -->
 
-        <section
-            class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div class="border-b border-slate-100 px-5 py-4">
 
                 <div class="flex items-center gap-3">
 
-                    <div
-                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
 
                         <i class="pi pi-list-check"></i>
 
@@ -598,8 +717,8 @@
             <div class="space-y-3 p-4">
 
                 @for (
-                    tramite of estadisticas.detalle_por_tramite;
-                    track tramite.tramite_id
+                tramite of estadisticas.detalle_por_tramite;
+                track tramite.tramite_id
                 ) {
 
                 <details
@@ -658,12 +777,11 @@
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
                             @for (
-                                pregunta of tramite.preguntas;
-                                track pregunta.pregunta
+                            pregunta of tramite.preguntas;
+                            track pregunta.pregunta
                             ) {
 
-                            <article
-                                class="rounded-2xl border border-slate-200 bg-white p-4">
+                            <article class="rounded-2xl border border-slate-200 bg-white p-4">
 
                                 <div>
 
@@ -682,8 +800,8 @@
                                 <div class="mt-4 space-y-4">
 
                                     @for (
-                                        respuesta of pregunta.respuestas;
-                                        track respuesta.respuesta
+                                    respuesta of pregunta.respuestas;
+                                    track respuesta.respuesta
                                     ) {
 
                                     <div>
@@ -697,23 +815,16 @@
 
                                             <div class="flex shrink-0 items-center gap-2">
 
-                                                <span
-                                                    class="rounded-full px-2 py-1 text-[10px] font-semibold"
+                                                <span class="rounded-full px-2 py-1 text-[10px] font-semibold"
                                                     [ngClass]="getBadgeClase(respuesta.porcentaje)">
 
                                                     {{
-                                                        respuesta.porcentaje < 40
-                                                            ? 'Bajo'
-                                                            : respuesta.porcentaje < 70
-                                                                ? 'Medio'
-                                                                : 'Alto'
-                                                    }}
+                                                    respuesta.porcentaje < 40 ? 'Bajo' : respuesta.porcentaje < 70
+                                                        ? 'Medio' : 'Alto' }} </span>
 
-                                                </span>
-
-                                                <span class="text-xs font-bold text-slate-800">
-                                                    {{ respuesta.porcentaje }}%
-                                                </span>
+                                                        <span class="text-xs font-bold text-slate-800">
+                                                            {{ respuesta.porcentaje }}%
+                                                        </span>
 
                                             </div>
 
@@ -722,8 +833,7 @@
 
                                         <div class="h-2 overflow-hidden rounded-full bg-slate-100">
 
-                                            <div
-                                                class="h-full rounded-full transition-all duration-500"
+                                            <div class="h-full rounded-full transition-all duration-500"
                                                 [ngClass]="getColorClaseAvanzado(respuesta.porcentaje)"
                                                 [style.width.%]="respuesta.porcentaje || 0">
                                             </div>
@@ -759,11 +869,9 @@
         <!-- ESTADO SIN INFORMACIÓN -->
         <!-- ===================================================== -->
 
-        <div
-            class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
 
-            <div
-                class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
 
                 <i class="pi pi-chart-bar text-xl"></i>
 
@@ -776,9 +884,9 @@
             <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
 
                 @if (authService.isAdmin()) {
-                    Selecciona una subjefatura para consultar sus resultados y estadísticas.
+                Selecciona una subjefatura para consultar sus resultados y estadísticas.
                 } @else {
-                    Las estadísticas aparecerán aquí cuando la información esté disponible.
+                Las estadísticas aparecerán aquí cuando la información esté disponible.
                 }
 
             </p>
@@ -790,4 +898,3 @@
     </div>
 
 </section>
-
